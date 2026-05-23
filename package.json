@@ -39,7 +39,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ttps://github.com/Lucas8x/pdfy.git"
+    "url": "git+https://github.com/Lucas8x/pdfy.git"
   },
   "homepage": "https://github.com/Lucas8x/pdfy",
   "bugs": {
@@ -53,5 +53,8 @@
     "transform",
     "convert",
     "compress"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
