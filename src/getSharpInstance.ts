@@ -2,6 +2,8 @@ import fs from 'node:fs/promises';
 import bmp from 'bmp-js';
 import sharp from 'sharp';
 
+sharp.cache(false);
+
 export async function getSharpInstance(filePath: string): Promise<sharp.Sharp> {
   if (filePath.endsWith('.bmp')) {
     const bmpFile = await fs.readFile(filePath);

@@ -1,10 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import prompts, { type PromptObject } from 'prompts';
-import sharp from 'sharp';
 import { createPDF } from './createPDF';
-
-sharp.cache(false);
 
 const cwd = process.cwd();
 
