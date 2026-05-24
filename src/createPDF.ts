@@ -35,9 +35,9 @@ export async function createPDF(inputFolder: string, outputPdf: string) {
   writeStream.on('finish', () => {
     const finalPdfSize = fs.statSync(outputPdf).size;
     console.log(
-      `📁 PDF salvo como: ${makeClickablePath(outputPdf).ansi}\n` +
-        `📊 Tamanho total original: ${filesize(totalOriginalSize)}\n` +
-        `📊 Tamanho final do PDF: ${filesize(finalPdfSize)}\n` +
+      `📁 PDF saved as: ${makeClickablePath(outputPdf).ansi}\n` +
+        `📊 Original total size: ${filesize(totalOriginalSize)}\n` +
+        `📊 Final PDF size: ${filesize(finalPdfSize)}\n` +
         diffSize(totalOriginalSize, finalPdfSize)
     );
   });

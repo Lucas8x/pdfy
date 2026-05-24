@@ -13,10 +13,10 @@ async function selectFolder() {
   const prompt: PromptObject = {
     type: 'select',
     name: 'folder',
-    message: 'Selecione uma pasta:',
+    message: 'Select a folder:',
     choices: [
       {
-        title: 'Pasta Atual',
+        title: 'Current Folder',
         value: cwd,
         description: cwd,
       },
@@ -35,11 +35,11 @@ async function main() {
   const folderPath = await selectFolder();
 
   if (!folderPath) {
-    console.log('Nenhuma pasta selecionada.');
+    console.log('No folder selected.');
     return;
   }
 
-  console.log(`📂 Pasta selecionada: ${folderPath}`);
+  console.log(`📂 Selected folder: ${folderPath}`);
 
   const outputName = path.basename(folderPath).concat('.pdf');
   const outputPdf = path.join(cwd, outputName);

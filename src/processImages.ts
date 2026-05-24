@@ -26,13 +26,11 @@ export async function processImages(inputFolder: string) {
     })
     .map((fileName) => path.join(inputFolder, fileName));
 
-  console.log(
-    `🖼️ Encontradas ${files.length} imagens. Iniciando a conversão...`
-  );
+  console.log(`🖼️ Found ${files.length} images. Starting conversion...`);
 
   if (unsupportedCount > 0) {
     console.log(
-      `⚠️ ${unsupportedCount} arquivo(s) ignorado(s) por formato não suportado: ${unsupportedFormats}`
+      `⚠️ ${unsupportedCount} file(s) ignored due to unsupported format: ${unsupportedFormats}`
     );
   }
 

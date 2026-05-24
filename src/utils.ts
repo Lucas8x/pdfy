@@ -17,7 +17,7 @@ export function diffSize(prev: number, curr: number) {
 
   const [emoji, sign] = getIndicators(delta);
 
-  return `${emoji} Diferença: ${sign}${filesize(Math.abs(delta))} (${delta > 0 ? '+' : ''}${percent.toFixed(2)}%)`;
+  return `${emoji} Diff: ${sign}${filesize(Math.abs(delta))} (${delta > 0 ? '+' : ''}${percent.toFixed(2)}%)`;
 }
 
 const isWindows = process.platform === 'win32';

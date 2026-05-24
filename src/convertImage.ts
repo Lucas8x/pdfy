@@ -51,7 +51,7 @@ async function compressImage(
   }
 
   console.log(
-    `${prefix} 🔧 Tamanho após ${compressionCount > 1 ? `(${compressionCount}) compressões` : 'compressão'} : ${diffSize(originalSize, buffer.length)}`
+    `${prefix} 🔧 Size after ${compressionCount > 1 ? `(${compressionCount}) compressions` : 'compression'} : ${diffSize(originalSize, buffer.length)}`
   );
 
   return buffer;
@@ -67,14 +67,12 @@ export async function convertImage(
     let { width, height } = metadata;
 
     if (width === undefined || height === undefined) {
-      console.error(
-        `${logPrefix} ❌ Não foi possível obter as dimensões da imagem ${file}`
-      );
+      console.error(`${logPrefix} ❌ Unable to get image dimensions ${file}`);
       return [{ error: 'UNKNOWN_DIMENSIONS', file }, null];
     }
 
     console.log(
-      `${logPrefix} 📷 Processando: ${path.basename(file)} (${width}x${height})`
+      `${logPrefix} 📷 Processing: ${path.basename(file)} (${width}x${height})`
     );
 
     const shouldResize = width > MAX_WIDTH || height > MAX_HEIGHT;
@@ -83,7 +81,7 @@ export async function convertImage(
       const scale = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
       width = Math.round(width * scale);
       height = Math.round(height * scale);
-      console.log(`${logPrefix} 🔄 Redimensionando para: ${width}x${height}`);
+      console.log(`${logPrefix} 🔄 Resizing to: ${width}x${height}`);
     }
 
     const pipeline = image.resize(width, height, {
@@ -97,7 +95,7 @@ export async function convertImage(
 
     return [null, { buffer, width, height, originalSize }];
   } catch (error) {
-    console.error(`${logPrefix} ❌ Erro ao processar ${file}:`, error);
+    console.error(`${logPrefix} ❌ Error processing ${file}:`, error);
     return [
       {
         error: error instanceof Error ? error.message : 'UNKNOWN_ERROR',
