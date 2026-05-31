@@ -1,10 +1,9 @@
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import pLimit from 'p-limit';
+import { concurrency } from './args';
 import { convertImage } from './convertImage';
 
-const CONCURRENCY_LIMIT = Math.max(2, os.cpus().length / 2);
 const EXTENSION_REGEX = /\.(jpe?g|png|webp|jfif|tiff|svg|avif|bmp)$/i;
 
 export async function processImages(inputFolder: string) {
@@ -34,7 +33,7 @@ export async function processImages(inputFolder: string) {
     );
   }
 
-  const limit = pLimit(CONCURRENCY_LIMIT);
+  const limit = pLimit(concurrency);
 
   let totalOriginalSize = 0;
   const failedItems: string[] = [];
@@ -51,10 +50,8 @@ export async function processImages(inputFolder: string) {
         return null;
       }
 
-      const { buffer, width, height, originalSize } = result;
-      totalOriginalSize += originalSize;
-
-      return { index, buffer, width, height };
+      totalOriginalSize += result.originalSize;
+      return { index, ...result };
     })
   );
 
