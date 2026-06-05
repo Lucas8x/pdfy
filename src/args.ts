@@ -177,12 +177,4 @@ const {
   height: number;
 }>();
 
-console.log({
-  concurrency,
-  output: outputPath,
-  quality,
-  maxWidth,
-  maxHeight,
-});
-
 export { concurrency, maxHeight, maxWidth, outputPath, quality };
