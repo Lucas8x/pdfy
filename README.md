@@ -15,18 +15,31 @@ Pdfy is a CLI tool for converting and compressing a image folder into a single P
 
 - Node.js 22+ or Bun 1.3+
 
-## Usage
-
+## Install
 Using npm:
 
 ```bash
-npx @lucas8x/pdfy
+npm install -g @lucas8x/pdfy
 ```
 
-Using Bun:
+After install, you can run this command on parent or inside your image directory...
 
 ```bash
-bunx @lucas8x/pdfy
+pdfy
+```
+
+## Options
+
+```bash
+pdfy [OPTIONS]
+
+-o, --output <path>         Output directory of pdf (default: current working directory)
+-c, --concurrency <number>  Number of concurrent processes to use. (default: half of your CPU cores)
+-q, --quality <number>      Quality of the compressed images [1-100, "max","all" ]. (default: 80)
+-w, --width <number>        Maximum width of the images in pixels. (default: 1920)
+-h, --height <number>       Maximum height of the images in pixels. (default: 1080)
+-V, --version               output the cli version number
+--help                      display this help message
 ```
 
 ## Built with

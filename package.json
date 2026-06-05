@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "bmp-js": "^0.1.0",
+    "commander": "^15.0.0",
     "filesize": "^11.0.17",
     "p-limit": "^7.3.0",
     "pdfkit": "^0.18.0",

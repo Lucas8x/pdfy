@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import prompts, { type PromptObject } from 'prompts';
+import { outputPath } from './args';
 import { createPDF } from './createPDF';
 import { makeClickablePath } from './utils';
 
@@ -43,7 +44,7 @@ async function main() {
   console.log(`📂 Selected folder: ${makeClickablePath(folderPath).ansi}`);
 
   const outputName = path.basename(folderPath).concat('.pdf');
-  const outputPdf = path.join(cwd, outputName);
+  const outputPdf = path.join(outputPath, outputName);
 
   await createPDF(folderPath, outputPdf).catch(console.error);
 }

@@ -2,13 +2,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type sharp from 'sharp';
 import type { ConvertImageReturns } from './@types';
+import { maxHeight, maxWidth, quality } from './args';
 import { getSharpInstance } from './getSharpInstance';
 import { diffSize } from './utils';
 
-const MAX_WIDTH = 1920;
-const MAX_HEIGHT = 1080;
 const COMPRESSION_THRESHOLD = 5 * 1024 * 1024; // 5MB em bytes
-const QUALITY = 80;
 
 async function compressImage(
   img: sharp.Sharp,
@@ -18,7 +16,7 @@ async function compressImage(
   let buffer = await img
     .flatten({ background: '#ffffff' })
     .jpeg({
-      quality: QUALITY,
+      quality,
       progressive: true,
       mozjpeg: true,
       optimiseCoding: true,
@@ -31,11 +29,9 @@ async function compressImage(
     compressionCount < 3 &&
     (buffer.length > originalSize || buffer.length > COMPRESSION_THRESHOLD)
   ) {
-    const quality = QUALITY - 10 * compressionCount;
-
     const defaultCompression = await img
       .jpeg({
-        quality,
+        quality: quality - 10 * compressionCount,
         progressive: true,
         mozjpeg: true,
         optimiseCoding: true,
@@ -75,10 +71,10 @@ export async function convertImage(
       `${logPrefix} 📷 Processing: ${path.basename(file)} (${width}x${height})`
     );
 
-    const shouldResize = width > MAX_WIDTH || height > MAX_HEIGHT;
+    const shouldResize = width > maxWidth || height > maxHeight;
 
     if (shouldResize) {
-      const scale = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+      const scale = Math.min(maxWidth / width, maxHeight / height);
       width = Math.round(width * scale);
       height = Math.round(height * scale);
       console.log(`${logPrefix} 🔄 Resizing to: ${width}x${height}`);
