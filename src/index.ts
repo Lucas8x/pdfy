@@ -7,15 +7,17 @@ import { makeClickablePath } from './utils';
 
 const cwd = process.cwd();
 
-async function selectFolder() {
+async function selectFolder(): Promise<string[]> {
   const folders = fs
     .readdirSync(cwd)
     .filter((file) => fs.statSync(file).isDirectory());
 
   const prompt: PromptObject = {
-    type: 'select',
+    type: 'multiselect',
     name: 'folder',
     message: 'Select a folder:',
+    hint: 'Space to toggle select. Enter to submit',
+    instructions: false,
     choices: [
       {
         title: 'Current Folder',
@@ -34,19 +36,24 @@ async function selectFolder() {
 }
 
 async function main() {
-  const folderPath = await selectFolder();
+  const selectedFolders = await selectFolder();
 
-  if (!folderPath) {
-    console.log('No folder selected.');
+  if (
+    !(selectedFolders && Array.isArray(selectedFolders)) ||
+    selectedFolders.length === 0
+  ) {
+    console.warn('No folder selected.');
     return;
   }
 
-  console.log(`📂 Selected folder: ${makeClickablePath(folderPath).ansi}`);
+  for (const folderPath of selectedFolders) {
+    console.log(`📂 Selected folder: ${makeClickablePath(folderPath).ansi}`);
 
-  const outputName = path.basename(folderPath).concat('.pdf');
-  const outputPdf = path.join(outputPath, outputName);
+    const outputName = path.basename(folderPath).concat('.pdf');
+    const outputPdf = path.join(outputPath, outputName);
 
-  await createPDF(folderPath, outputPdf).catch(console.error);
+    await createPDF(folderPath, outputPdf).catch(console.error);
+  }
 }
 
 main();
