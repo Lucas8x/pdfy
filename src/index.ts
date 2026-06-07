@@ -16,13 +16,14 @@ async function selectFolder(): Promise<string[]> {
     type: 'multiselect',
     name: 'folder',
     message: 'Select a folder:',
-    hint: 'Space to toggle select. Enter to submit',
+    hint: 'Space to toggle select. Enter to submit. "a" to select all',
     instructions: false,
     choices: [
       {
         title: 'Current Folder',
         value: cwd,
         description: cwd,
+        selected: true,
       },
       ...folders.map((folder) => ({
         title: folder,
