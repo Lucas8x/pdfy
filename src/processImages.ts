@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import pLimit from 'p-limit';
+import ProgressBar from 'progress';
 import { concurrency } from './args';
 import { convertImage } from './convertImage';
 
@@ -33,6 +34,16 @@ export async function processImages(inputFolder: string) {
     );
   }
 
+  const bar = new ProgressBar(
+    '🔄 Processing images [:current/:total] [:bar] :percent% :rate imgs/s ETA :etas',
+    {
+      total: files.length,
+      width: 50,
+      complete: '█',
+      incomplete: ' ',
+    }
+  );
+
   const limit = pLimit(concurrency);
 
   let totalOriginalSize = 0;
@@ -40,13 +51,14 @@ export async function processImages(inputFolder: string) {
 
   const conversionPromises = files.map((file, index) =>
     limit(async () => {
-      const [error, result] = await convertImage(
-        file,
-        `[${(index + 1).toString().padStart(files.length.toString().length, '0')}/${files.length}]`
+      const [error, result] = await convertImage(file, (msg) =>
+        bar.interrupt(msg)
       );
 
-      if (error) {
-        failedItems.push(error.file);
+      bar.tick();
+
+      if (error !== null || result === null) {
+        failedItems.push(file);
         return null;
       }
 

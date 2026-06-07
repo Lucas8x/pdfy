@@ -8,5 +8,5 @@ export type ConvertImageReturns = Promise<
         originalSize: number;
       },
     ]
-  | [{ error: string; file: string }, null]
+  | [string, null]
 >;
