@@ -7,6 +7,11 @@ import { diffSize, getAdjustedSizes, makeClickablePath } from './utils';
 export async function createPDF(inputFolder: string, outputPdf: string) {
   const { results, totalOriginalSize } = await processImages(inputFolder);
 
+  if (!results.length) {
+    console.error('⚠️ No valid images found to process. PDF creation aborted.');
+    return;
+  }
+
   const doc = new PDFDocument({
     autoFirstPage: false,
     pdfVersion: '1.5',
