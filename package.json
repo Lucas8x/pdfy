@@ -1,6 +1,6 @@
 {
   "name": "@lucas8x/pdfy",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "module": "index.ts",
   "description": "cli tool for converting and compressing a image folder into a single PDF file.",
   "type": "module",
