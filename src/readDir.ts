@@ -1,5 +1,6 @@
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { sort } from './args';
 
 const EXTENSION_REGEX = /\.(jpe?g|png|webp|jfif|tiff|svg|avif|bmp)$/i;
 
@@ -36,7 +37,11 @@ export async function readDir(inputFolder: string): Promise<string[]> {
           };
         })
       )
-    ).sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+    ).sort((a, b) => {
+      const bTime = b.mtime.getTime();
+      const aTime = a.mtime.getTime();
+      return sort === 'newest' ? bTime - aTime : aTime - bTime;
+    });
 
     console.log(`🖼️ Found ${sortedFiles.length} images.`);
 

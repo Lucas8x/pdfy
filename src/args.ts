@@ -3,12 +3,16 @@ import os from 'node:os';
 import path from 'node:path';
 import { Command } from 'commander';
 import pkgJson from '../package.json';
+import { parseInteger } from './utils';
 
 const numCpus = os.cpus().length;
 const DEFAULT_CONCURRENCY = Math.max(1, Math.floor(numCpus / 2));
 const DEFAULT_QUALITY = 80;
 const DEFAULT_MAX_WIDTH = 1920;
 const DEFAULT_MAX_HEIGHT = 1080;
+const SORTING_OPTIONS = ['newest', 'oldest'] as const;
+type SORTING_TYPES = (typeof SORTING_OPTIONS)[number];
+const DEFAULT_SORTING = SORTING_OPTIONS[0];
 
 const program = new Command('pdfy')
   .version(pkgJson.version)
@@ -23,14 +27,14 @@ const program = new Command('pdfy')
         return process.cwd();
       }
 
-      const resolvedPath = path.resolve(value);
-
-      if (!path.isAbsolute(resolvedPath)) {
+      if (!path.isAbsolute(value)) {
         console.warn(
           'Output path must be absolute (ex: C:\\photos\\pdfs), exiting...'
         );
         process.exit(1);
       }
+
+      const resolvedPath = path.normalize(value);
 
       try {
         const stats = fs.statSync(resolvedPath);
@@ -55,27 +59,17 @@ const program = new Command('pdfy')
         return numCpus;
       }
 
-      const parsedValue = Number.parseInt(value, 10);
-
-      if (Number.isNaN(parsedValue)) {
-        console.warn(
-          `Invalid concurrency value, (must be a number) using default (${DEFAULT_CONCURRENCY})`
-        );
-        return DEFAULT_CONCURRENCY;
-      }
+      const parsedValue = parseInteger(
+        value,
+        'concurrency',
+        DEFAULT_CONCURRENCY
+      );
 
       if (parsedValue > numCpus) {
         console.warn(
           `You set concurrency above the maximum (${numCpus}). The maximum will be used.`
         );
         return numCpus;
-      }
-
-      if (parsedValue < 1) {
-        console.warn(
-          `Concurrency must be greater than 0, using default (${DEFAULT_CONCURRENCY})`
-        );
-        return DEFAULT_CONCURRENCY;
       }
 
       return parsedValue;
@@ -86,21 +80,7 @@ const program = new Command('pdfy')
     '-q, --quality <number>',
     'Quality of the compressed images [1-100].',
     (value) => {
-      const parsedValue = Number.parseInt(value, 10);
-
-      if (Number.isNaN(parsedValue)) {
-        console.warn(
-          `Invalid quality value, (must be a number) using default (${DEFAULT_QUALITY})`
-        );
-        return DEFAULT_QUALITY;
-      }
-
-      if (parsedValue <= 0) {
-        console.warn(
-          `Invalid quality value, (must be greater than 0) using default (${DEFAULT_QUALITY})`
-        );
-        return DEFAULT_QUALITY;
-      }
+      const parsedValue = parseInteger(value, 'quality', DEFAULT_QUALITY);
 
       if (parsedValue > 100) {
         console.warn(
@@ -116,65 +96,44 @@ const program = new Command('pdfy')
   .option(
     '-w, --width <number>',
     'Maximum width of the images in pixels.',
-    (value) => {
-      const parsedValue = Number.parseInt(value, 10);
-
-      if (Number.isNaN(parsedValue)) {
-        console.warn(
-          `Invalid width value, (must be a number) using default (${DEFAULT_MAX_WIDTH})`
-        );
-        return DEFAULT_MAX_WIDTH;
-      }
-
-      if (parsedValue <= 0) {
-        console.warn(
-          `Invalid width value, (must be greater than 0) using default (${DEFAULT_MAX_WIDTH})`
-        );
-        return DEFAULT_MAX_WIDTH;
-      }
-
-      return parsedValue;
-    },
+    (value) => parseInteger(value, 'width', DEFAULT_MAX_WIDTH),
     DEFAULT_MAX_WIDTH
   )
   .option(
     '-h, --height <number>',
     'Maximum height of the images in pixels.',
-    (value) => {
-      const parsedValue = Number.parseInt(value, 10);
-
-      if (Number.isNaN(parsedValue)) {
-        console.warn(
-          `Invalid height value, (must be a number) using default (${DEFAULT_MAX_HEIGHT})`
-        );
-        return DEFAULT_MAX_HEIGHT;
-      }
-
-      if (parsedValue <= 0) {
-        console.warn(
-          `Invalid height value, (must be greater than 0) using default (${DEFAULT_MAX_HEIGHT})`
-        );
-        return DEFAULT_MAX_HEIGHT;
-      }
-
-      return parsedValue;
-    },
+    (value) => parseInteger(value, 'height', DEFAULT_MAX_HEIGHT),
     DEFAULT_MAX_HEIGHT
+  )
+  .option(
+    `-s, --sort <${SORTING_OPTIONS.join('|')}>`,
+    'Determines the order in which the images will be inserted into the PDF.',
+    (value): SORTING_TYPES => {
+      if (SORTING_OPTIONS.includes(value.toLowerCase() as SORTING_TYPES)) {
+        return value.toLowerCase() as SORTING_TYPES;
+      }
+
+      console.warn(
+        `Invalid sorting value, (must be ${SORTING_OPTIONS.join(' or ')}) using default: (newest)`
+      );
+      return DEFAULT_SORTING;
+    },
+    DEFAULT_SORTING
   )
   .parse(process.argv);
 
-const {
+export const {
   concurrency,
   output: outputPath,
   quality,
   width: maxWidth,
   height: maxHeight,
+  sort,
 } = program.opts<{
   output: string;
   concurrency: number;
   quality: number;
   width: number;
   height: number;
+  sort: SORTING_TYPES;
 }>();
-
-export { concurrency, maxHeight, maxWidth, outputPath, quality };
