@@ -4,7 +4,11 @@ import PDFDocument from 'pdfkit';
 import { processImages } from './processImages';
 import { diffSize, getAdjustedSizes, makeClickablePath } from './utils';
 
-export async function createPDF(inputFolder: string, outputPdf: string) {
+export async function createPDF(
+  inputFolder: string,
+  outputPdf: string,
+  userPassword?: string
+) {
   const { results, totalOriginalSize } = await processImages(inputFolder);
 
   if (!results.length) {
@@ -16,6 +20,7 @@ export async function createPDF(inputFolder: string, outputPdf: string) {
     autoFirstPage: false,
     pdfVersion: '1.5',
     margin: 0,
+    userPassword,
   });
 
   const writeStream = fs.createWriteStream(outputPdf);

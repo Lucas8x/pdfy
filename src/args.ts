@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { Command } from 'commander';
 import pkgJson from '../package.json';
-import { parseInteger } from './utils';
+import { parseInteger, validatePassword } from './utils';
 
 const numCpus = os.cpus().length;
 const DEFAULT_CONCURRENCY = Math.max(1, Math.floor(numCpus / 2));
@@ -120,6 +120,18 @@ const program = new Command('pdfy')
     },
     DEFAULT_SORTING
   )
+  .option(
+    '--pw, --password <string>',
+    'Protect file with password.',
+    (value) => {
+      const [error, isValid] = validatePassword(value);
+      if (!isValid) {
+        console.warn(error);
+        process.exit(1);
+      }
+      return value;
+    }
+  )
   .parse(process.argv);
 
 export const {
@@ -129,6 +141,7 @@ export const {
   width: maxWidth,
   height: maxHeight,
   sort,
+  password,
 } = program.opts<{
   output: string;
   concurrency: number;
@@ -136,4 +149,5 @@ export const {
   width: number;
   height: number;
   sort: SORTING_TYPES;
+  password: string;
 }>();

@@ -40,6 +40,7 @@ pdfy [OPTIONS]
 -w, --width <number>        Maximum width of the images in pixels. (default: 1920)
 -h, --height <number>       Maximum height of the images in pixels. (default: 1080)
 -s, --sort <newest|oldest>  Determines the order in which the images will be inserted into the PDF. (default: "newest")
+--pw, --password <string>   Protect file with password.
 -V, --version               output the cli version number
 --help                      display this help message
 ```
@@ -49,17 +50,26 @@ Sets the quality to half of the original:
 ```bash
 pdfy -q 50
 ```
+
 Defines the maximum image resolution:
 ```bash
 pdfy -w 1280 -h 720
 ```
-The PDF starts with the oldest images.
+
+The PDF starts with the oldest images:
 ```bash
 pdfy -s oldest
 ```
+
+Protect file with a password:
+```bash
+pdfy --password 'a1b2c3'
+```
+NOTE: quotation marks will not be part of the password.
+
 A complete example:
 ```bash
-pdfy -c 8 -q 50 -w 1280 -h 720 -s oldest -o F:\images\pdfs
+pdfy -c 8 -q 50 -w 1280 -h 720 -s oldest -o F:\images\pdfs --password '1234'
 ```
 
 ## Built with
