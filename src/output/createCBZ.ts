@@ -4,19 +4,16 @@ import { ZipArchive } from 'archiver';
 import type { CreateCbzMetadaArgs, ProcessResults } from '../@types';
 import { createComicInfo } from '../utils/createComicInfo';
 
-export function createCBZ(
+export async function createCBZ(
   images: ProcessResults[],
   outputFilePath: string,
-  onFinish: () => void,
   metadata?: CreateCbzMetadaArgs
 ) {
   const archive = new ZipArchive({
     zlib: { level: 0 },
   });
 
-  const writeStream = fs.createWriteStream(outputFilePath).on('finish', () => {
-    onFinish();
-  });
+  const writeStream = fs.createWriteStream(outputFilePath);
 
   archive.pipe(writeStream);
 
@@ -49,5 +46,5 @@ export function createCBZ(
     });
   }
 
-  archive.finalize();
+  await archive.finalize();
 }

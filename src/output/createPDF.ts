@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { finished } from 'node:stream/promises';
 import PDFDocument from 'pdfkit';
 import type { ProcessResults } from '../@types';
 import { getAdjustedSizes } from '../utils/getAdjustedSizes';
 
-export function createPDF(
+export async function createPDF(
   images: ProcessResults[],
   outputFilePath: string,
-  onFinish: () => void,
   userPassword?: string
 ) {
   const doc = new PDFDocument({
@@ -20,9 +20,7 @@ export function createPDF(
     },
   });
 
-  const writeStream = fs.createWriteStream(outputFilePath).on('finish', () => {
-    onFinish?.();
-  });
+  const writeStream = fs.createWriteStream(outputFilePath);
 
   doc.pipe(writeStream);
 
@@ -41,4 +39,6 @@ export function createPDF(
   }
 
   doc.end();
+
+  await finished(writeStream);
 }

@@ -44,26 +44,17 @@ async function main() {
     const finalOutputPath = path.join(outputPath, outputFilename);
 
     if (enableCBZ) {
-      const { birthtime, mtime } = await fs.stat(folderPath);
+      const stats = await fs.stat(folderPath);
 
-      createCBZ(
-        results,
-        finalOutputPath,
-        () => {
-          printOutputDetails(finalOutputPath, totalOriginalSize);
-        },
-        { birthtime, mtime }
-      );
+      await createCBZ(results, finalOutputPath, {
+        birthtime: stats.birthtime,
+        mtime: stats.mtime,
+      });
     } else {
-      createPDF(
-        results,
-        finalOutputPath,
-        () => {
-          printOutputDetails(finalOutputPath, totalOriginalSize);
-        },
-        userPassword
-      );
+      await createPDF(results, finalOutputPath, userPassword);
     }
+
+    printOutputDetails(finalOutputPath, totalOriginalSize);
   }
 }
 
