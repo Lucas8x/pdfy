@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises';
 import type sharp from 'sharp';
-import type { ConvertImageReturns } from './@types';
-import { maxHeight, maxWidth, quality } from './args';
+import type { ImageCompresed } from '../@types';
+import { maxHeight, maxWidth, quality } from '../cli/args';
+import { makeClickablePath } from '../utils';
 import { getSharpInstance } from './getSharpInstance';
-import { makeClickablePath } from './utils';
 
 const COMPRESSION_THRESHOLD = 5 * 1024 * 1024; // 5MB em bytes
 
@@ -47,7 +47,7 @@ async function compressImage(img: sharp.Sharp, originalSize: number) {
 export async function convertImage(
   file: string,
   logError: (message: string) => void
-): ConvertImageReturns {
+): Promise<[null, ImageCompresed] | [string, null]> {
   try {
     const image = await getSharpInstance(file);
     const metadata = await image.metadata();

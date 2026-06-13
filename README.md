@@ -41,6 +41,7 @@ pdfy [OPTIONS]
 -h, --height <number>       Maximum height of the images in pixels. (default: 1080)
 -s, --sort <newest|oldest>  Determines the order in which the images will be inserted into the PDF. (default: "newest")
 --pw, --password <string>   Protect file with password.
+--cbz                       Create CBZ file instead of PDF
 -V, --version               output the cli version number
 --help                      display this help message
 ```
@@ -71,6 +72,12 @@ A complete example:
 ```bash
 pdfy -c 8 -q 50 -w 1280 -h 720 -s oldest -o F:\images\pdfs --password '1234'
 ```
+
+Create CBZ file instead of PDF:
+```bash
+pdfy --cbz
+```
+NOTE: --password doesn't work in CBZ format.
 
 ## Built with
 

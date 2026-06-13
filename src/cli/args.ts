@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { Command } from 'commander';
-import pkgJson from '../package.json';
-import { parseInteger, validatePassword } from './utils';
+import { Command, Option } from 'commander';
+import pkgJson from '../../package.json';
+import { parseInteger } from '../utils/integerParser';
+import { validatePassword } from '../utils/passwordValidator';
 
 const numCpus = os.cpus().length;
 const DEFAULT_CONCURRENCY = Math.max(1, Math.floor(numCpus / 2));
@@ -132,6 +133,12 @@ const program = new Command('pdfy')
       return value;
     }
   )
+  .addOption(
+    new Option('--cbz', 'Create CBZ file instead of PDF').conflicts([
+      'pw',
+      'password',
+    ])
+  )
   .parse(process.argv);
 
 export const {
@@ -142,6 +149,7 @@ export const {
   height: maxHeight,
   sort,
   password,
+  cbz: enableCBZ,
 } = program.opts<{
   output: string;
   concurrency: number;
@@ -150,4 +158,5 @@ export const {
   height: number;
   sort: SORTING_TYPES;
   password: string;
+  cbz: boolean;
 }>();

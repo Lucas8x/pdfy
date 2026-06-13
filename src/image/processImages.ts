@@ -1,8 +1,8 @@
 import pLimit from 'p-limit';
 import ProgressBar from 'progress';
-import { concurrency } from './args';
+import { concurrency } from '../cli/args';
+import { readDir } from '../utils/readDir';
 import { convertImage } from './convertImage';
-import { readDir } from './readDir';
 
 export async function processImages(inputFolder: string) {
   const files = await readDir(inputFolder);
