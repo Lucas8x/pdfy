@@ -9,14 +9,27 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "style": {
         "useFilenamingConvention": {
           "level": "warn",
           "options": {
             "filenameCases": ["camelCase"]
           }
+        },
+        "useConsistentTypeDefinitions": {
+          "level": "warn",
+          "options": {
+            "style": "type"
+          }
         }
+      },
+      "correctness": {
+        "noUnusedImports": {
+          "level": "warn",
+          "fix": "none"
+        },
+        "noUnusedVariables": "warn"
       }
     }
   },
