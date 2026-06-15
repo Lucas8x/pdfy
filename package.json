@@ -32,7 +32,7 @@
     "sharp": "^0.34.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.15",
+    "@biomejs/biome": "2.5.0",
     "@types/archiver": "^8.0.0",
     "@types/progress": "^2.0.7",
     "@types/bmp-js": "^0.1.2",
