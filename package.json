@@ -57,7 +57,8 @@
     "pdfy",
     "transform",
     "convert",
-    "compress"
+    "compress",
+    "cbz"
   ],
   "publishConfig": {
     "access": "public"
