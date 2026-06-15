@@ -2,16 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { finished } from 'node:stream/promises';
 import PDFDocument from 'pdfkit';
-import type { ProcessResults } from '../@types';
 import { getAdjustedSizes } from '../utils/getAdjustedSizes';
 
-export async function createPDF(
-  images: ProcessResults[],
-  outputFilePath: string,
-  userPassword?: string
-) {
+export function createPDF(outputFilePath: string, userPassword?: string) {
   const doc = new PDFDocument({
     autoFirstPage: false,
+    bufferPages: false,
     pdfVersion: '1.5',
     margin: 0,
     userPassword,
@@ -24,7 +20,16 @@ export async function createPDF(
 
   doc.pipe(writeStream);
 
-  for (const { buffer, width, height } of images) {
+  const queue = new Map<
+    number,
+    {
+      buffer: Buffer | null;
+      width: number;
+      height: number;
+    }
+  >();
+
+  function addImage(buffer: Buffer, width: number, height: number) {
     const { pageWidth, pageHeight } = getAdjustedSizes(width, height);
 
     doc.addPage({
@@ -38,7 +43,29 @@ export async function createPDF(
     });
   }
 
-  doc.end();
+  function addMissing() {
+    for (const [index, data] of Array.from(queue).sort((a, b) => a[0] - b[0])) {
+      if (data.buffer) {
+        addImage(data.buffer, data.width, data.height);
+      }
 
-  await finished(writeStream);
+      queue.delete(index);
+      data.buffer = null;
+    }
+  }
+
+  return {
+    append(index: number, buffer: Buffer, width: number, height: number) {
+      queue.set(index, {
+        buffer,
+        width,
+        height,
+      });
+    },
+    async finalize(): Promise<void> {
+      addMissing();
+      doc.end();
+      await finished(writeStream);
+    },
+  };
 }

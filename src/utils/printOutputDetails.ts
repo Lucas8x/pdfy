@@ -1,14 +1,14 @@
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { filesize } from 'filesize';
 import { makeClickablePath } from '.';
 import { diffSize } from './filesizeIndicator';
 
-export function printOutputDetails(
+export async function printOutputDetails(
   filePath: string,
   totalOriginalSize: number
 ) {
-  const finalFileSize = fs.statSync(filePath).size;
+  const finalFileSize = (await fs.stat(filePath)).size;
 
   const ext = path.extname(filePath).slice(1).toUpperCase();
 

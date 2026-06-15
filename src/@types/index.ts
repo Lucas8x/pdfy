@@ -1,21 +1,14 @@
 export type ImageCompresed = {
-  buffer: Buffer;
+  buffer: Buffer | null;
   width: number;
   height: number;
   originalSize: number;
-};
-
-export type ProcessResults = {
-  buffer: Buffer<ArrayBufferLike>;
-  width: number;
-  height: number;
-  originalSize: number;
-  index: number;
 };
 
 export type CreateCbzMetadaArgs = {
+  imagesLength: number;
   birthtime: Date;
-  mtime: Date
+  mtime: Date;
 };
 
 export type CbzMetadata = {
@@ -24,4 +17,4 @@ export type CbzMetadata = {
   summary: string;
   year: number;
   month: number;
-}
+};

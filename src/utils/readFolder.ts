@@ -4,7 +4,7 @@ import { sort } from '../cli/args';
 
 const EXTENSION_REGEX = /\.(jpe?g|png|webp|jfif|tiff|svg|avif|bmp)$/i;
 
-export async function readDir(inputFolder: string): Promise<string[]> {
+export async function readFolder(inputFolder: string): Promise<string[]> {
   try {
     let unsupportedCount = 0;
     let unsupportedFormats = '';

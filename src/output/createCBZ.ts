@@ -1,11 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ZipArchive } from 'archiver';
-import type { CreateCbzMetadaArgs, ProcessResults } from '../@types';
+import type { CreateCbzMetadaArgs } from '../@types';
 import { createComicInfo } from '../utils/createComicInfo';
 
-export async function createCBZ(
-  images: ProcessResults[],
+export function createCBZ(
   outputFilePath: string,
   metadata?: CreateCbzMetadaArgs
 ) {
@@ -17,22 +16,14 @@ export async function createCBZ(
 
   archive.pipe(writeStream);
 
-  const padMax = [...images.length.toString()].length;
-
-  for (const { buffer, index } of images) {
-    archive.append(buffer, {
-      name: `${String(index + 1).padStart(padMax, '0')}.jpg`,
-    });
-  }
-
   if (metadata) {
     const title = path.basename(outputFilePath).split('.')[0];
     const xml = createComicInfo({
       title,
-      pageCount: images.length,
+      pageCount: metadata.imagesLength,
       summary: [
         `Title: ${title}`,
-        `Pages: ${images.length}`,
+        `Pages: ${metadata.imagesLength}`,
         `Original creation date: ${metadata.birthtime.toLocaleString()}`,
         `Original last modified: ${metadata.mtime.toLocaleString()}`,
         `Created on: ${new Date().toLocaleString()}`,
@@ -46,5 +37,12 @@ export async function createCBZ(
     });
   }
 
-  await archive.finalize();
+  return {
+    append(stream: Buffer, name: string) {
+      archive.append(stream, { name });
+    },
+    async finalize() {
+      await archive.finalize();
+    },
+  };
 }

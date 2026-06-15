@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { enableCBZ, outputPath, password as pwArg } from './cli/args';
@@ -8,6 +9,64 @@ import { createCBZ } from './output/createCBZ';
 import { createPDF } from './output/createPDF';
 import { makeClickablePath } from './utils';
 import { printOutputDetails } from './utils/printOutputDetails';
+import { readFolder } from './utils/readFolder';
+
+async function processFolder(folderPath: string, userPassword: string) {
+  console.log(
+    `📂 Initiating process in: ${makeClickablePath(folderPath).ansi}`
+  );
+
+  const files = await readFolder(folderPath);
+
+  if (!files.length) {
+    console.error(
+      `⚠️ No valid images found in [${path.basename(folderPath)}]. PDF/CBZ creation aborted.`
+    );
+    return;
+  }
+
+  const outputFilename = path
+    .basename(folderPath)
+    .concat(enableCBZ ? '.cbz' : '.pdf');
+
+  const finalOutputPath = path.join(outputPath, outputFilename);
+
+  let cbz: ReturnType<typeof createCBZ> | null = null;
+  let pdf: ReturnType<typeof createPDF> | null = null;
+
+  if (enableCBZ) {
+    const stats = await fs.stat(folderPath);
+    cbz = createCBZ(finalOutputPath, {
+      birthtime: stats.birthtime,
+      mtime: stats.mtime,
+      imagesLength: files.length,
+    });
+  } else {
+    pdf = createPDF(finalOutputPath, userPassword);
+  }
+
+  const padMax = [...files.length.toString()].length;
+  let totalOriginalSize = 0;
+
+  for await (const data of processImages(files)) {
+    totalOriginalSize += data.originalSize;
+
+    if (data.buffer) {
+      if (enableCBZ) {
+        const filename = `${String(data.index + 1).padStart(padMax, '0')}.jpg`;
+        cbz?.append(data.buffer, filename);
+      } else {
+        pdf?.append(data.index, data.buffer, data.width, data.height);
+      }
+    }
+
+    data.buffer = null;
+  }
+
+  await (cbz || pdf)?.finalize();
+
+  await printOutputDetails(finalOutputPath, totalOriginalSize);
+}
 
 async function main() {
   const selectedFolders = await selectFolder();
@@ -26,35 +85,7 @@ async function main() {
   }
 
   for (const folderPath of selectedFolders) {
-    console.log(`📂 Selected folder: ${makeClickablePath(folderPath).ansi}`);
-
-    const { results, totalOriginalSize } = await processImages(folderPath);
-
-    if (!results.length) {
-      console.error(
-        '⚠️ No valid images found to process. PDF/CBZ creation aborted.'
-      );
-      return;
-    }
-
-    const outputFilename = path
-      .basename(folderPath)
-      .concat(enableCBZ ? '.cbz' : '.pdf');
-
-    const finalOutputPath = path.join(outputPath, outputFilename);
-
-    if (enableCBZ) {
-      const stats = await fs.stat(folderPath);
-
-      await createCBZ(results, finalOutputPath, {
-        birthtime: stats.birthtime,
-        mtime: stats.mtime,
-      });
-    } else {
-      await createPDF(results, finalOutputPath, userPassword);
-    }
-
-    printOutputDetails(finalOutputPath, totalOriginalSize);
+    await processFolder(folderPath, userPassword);
   }
 }
 
