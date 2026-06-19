@@ -20,15 +20,6 @@ export function createPDF(outputFilePath: string, userPassword?: string) {
 
   doc.pipe(writeStream);
 
-  const queue = new Map<
-    number,
-    {
-      buffer: Buffer | null;
-      width: number;
-      height: number;
-    }
-  >();
-
   function addImage(buffer: Buffer, width: number, height: number) {
     const { pageWidth, pageHeight } = getAdjustedSizes(width, height);
 
@@ -43,27 +34,11 @@ export function createPDF(outputFilePath: string, userPassword?: string) {
     });
   }
 
-  function addMissing() {
-    for (const [index, data] of Array.from(queue).sort((a, b) => a[0] - b[0])) {
-      if (data.buffer) {
-        addImage(data.buffer, data.width, data.height);
-      }
-
-      queue.delete(index);
-      data.buffer = null;
-    }
-  }
-
   return {
-    append(index: number, buffer: Buffer, width: number, height: number) {
-      queue.set(index, {
-        buffer,
-        width,
-        height,
-      });
+    append(buffer: Buffer, width: number, height: number) {
+      addImage(buffer, width, height);
     },
     async finalize(): Promise<void> {
-      addMissing();
       doc.end();
       await finished(writeStream);
     },

@@ -61,7 +61,7 @@ async function processFolder(folderPath: string, userPassword: string) {
         const filename = `${String(data.index + 1).padStart(padMax, '0')}.jpg`;
         cbz?.append(data.buffer, filename);
       } else {
-        pdf?.append(data.index, data.buffer, data.width, data.height);
+        pdf?.append(data.buffer, data.width, data.height);
       }
     }
 

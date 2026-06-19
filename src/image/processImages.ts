@@ -1,14 +1,12 @@
-import pLimit from 'p-limit';
+import { Readable } from 'node:stream';
 import ProgressBar from 'progress';
 import type { ImageCompresed } from '../@types';
 import { concurrency } from '../cli/args';
 import { convertImage } from './convertImage';
 
-export async function* processImages(files: string[]) {
-  const pending = new Set<
-    Promise<(ImageCompresed & { index: number }) | null>
-  >();
-
+export async function* processImages(
+  files: string[]
+): AsyncGenerator<{ index: number } & ImageCompresed> {
   const bar = new ProgressBar(
     '🔄 Processing images [:current/:total] [:bar] :percent% :rate imgs/s ETA :etas',
     {
@@ -19,35 +17,30 @@ export async function* processImages(files: string[]) {
     }
   );
 
-  const limit = pLimit(concurrency);
+  async function wrapperConvert([index, file]: [number, string]) {
+    const [error, result] = await convertImage(file, (msg) =>
+      bar.interrupt(msg)
+    );
 
-  let processedCount = 0;
-  const failedItems: string[] = [];
+    bar.tick();
+    if (error || !result) {
+      return null;
+    }
 
-  for (const [index, file] of files.entries()) {
-    const task = limit(async () => {
-      const [error, result] = await convertImage(file, (msg) =>
-        bar.interrupt(msg)
-      );
-
-      bar.tick();
-      processedCount += 1;
-
-      if (error || !result) {
-        failedItems.push(file);
-        return null;
-      }
-
-      return { index, ...result };
-    });
-
-    pending.add(task);
-    task.finally(() => pending.delete(task));
+    return {
+      index,
+      ...result,
+    };
   }
 
-  while (pending.size > 0) {
-    const result = await Promise.race(pending);
+  const processedCount = 0;
 
+  const source = Readable.from(files.entries()).map(wrapperConvert, {
+    concurrency,
+    //highWaterMark: 1,
+  });
+
+  for await (const result of source) {
     if (result) {
       yield result;
     }
@@ -57,7 +50,3 @@ export async function* processImages(files: string[]) {
     console.log(`✅ Processed: ${processedCount} of ${files.length}\n`);
   }
 }
-
-/* const results = (await Promise.all(conversionPromises))
-    .filter((r) => r !== null)
-    .sort((a, b) => a.index - b.index); */

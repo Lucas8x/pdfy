@@ -20,12 +20,14 @@
     "check": "ultracite check",
     "fix": "ultracite fix"
   },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "dependencies": {
     "archiver": "^8.0.0",
     "bmp-js": "^0.1.0",
     "commander": "^15.0.0",
     "filesize": "^11.0.17",
-    "p-limit": "^7.3.0",
     "pdfkit": "^0.18.0",
     "progress": "^2.0.3",
     "prompts": "^2.4.2",
@@ -37,6 +39,7 @@
     "@types/progress": "^2.0.7",
     "@types/bmp-js": "^0.1.2",
     "@types/bun": "^1.3.14",
+    "@types/node": "^22.0.0",
     "@types/pdfkit": "^0.17.6",
     "@types/prompts": "^2.4.9",
     "typescript": "^6.0.3",
