@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { enableCBZ, outputPath, password as pwArg } from './cli/args';
+import {
+  enableCBZ,
+  inputPath,
+  outputPath,
+  password as pwArg,
+} from './cli/args';
 import { askPassword } from './cli/askPasswor';
 import { selectFolder } from './cli/selectFolder';
 import { processImages } from './image/processImages';
@@ -69,7 +74,8 @@ async function processFolder(folderPath: string, userPassword: string) {
 }
 
 async function main() {
-  const selectedFolders = await selectFolder();
+  const selectedFolders =
+    inputPath === null ? await selectFolder() : [inputPath];
 
   if (
     !(selectedFolders && Array.isArray(selectedFolders)) ||

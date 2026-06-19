@@ -18,6 +18,39 @@ const DEFAULT_SORTING = SORTING_OPTIONS[0];
 const program = new Command('pdfy')
   .version(pkgJson.version)
   .option(
+    '-i, --input <path>',
+    'Input directory that will be converted',
+    (value) => {
+      if (value.trim() === '') {
+        console.warn('You provided an empty input path, exiting...');
+        process.exit(1);
+      }
+
+      if (!path.isAbsolute(value)) {
+        console.warn(
+          'Input path must be absolute (ex: C:\\myphotos), exiting...'
+        );
+        process.exit(1);
+      }
+
+      const resolvedPath = path.normalize(value);
+
+      try {
+        const stats = fs.statSync(resolvedPath);
+        if (!stats.isDirectory()) {
+          console.warn('Input must be a directory, exiting...');
+          process.exit(1);
+        }
+      } catch {
+        console.warn('Input path does not exist, exiting...');
+        process.exit(1);
+      }
+
+      return resolvedPath;
+    },
+    null
+  )
+  .option(
     '-o, --output <path>',
     'Output directory of pdf',
     (value) => {
@@ -142,8 +175,9 @@ const program = new Command('pdfy')
   .parse(process.argv);
 
 export const {
-  concurrency,
+  input: inputPath,
   output: outputPath,
+  concurrency,
   quality,
   width: maxWidth,
   height: maxHeight,
@@ -151,6 +185,7 @@ export const {
   password,
   cbz: enableCBZ,
 } = program.opts<{
+  input: string | null;
   output: string;
   concurrency: number;
   quality: number;
