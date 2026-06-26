@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import bmp from 'bmp-js';
 import sharp from 'sharp';
+import { cbzAnimationSupport } from '../cli/args';
 
 sharp.cache(false);
 
@@ -23,5 +24,8 @@ export async function getSharpInstance(filePath: string): Promise<sharp.Sharp> {
     });
   }
 
-  return sharp(filePath);
+  return sharp(filePath, {
+    pages: cbzAnimationSupport ? -1 : 1,
+    animated: cbzAnimationSupport,
+  });
 }

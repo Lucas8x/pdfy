@@ -3,6 +3,7 @@ export type ImageCompresed = {
   width: number;
   height: number;
   originalSize: number;
+  isAnimated: boolean;
 };
 
 export type CreateCbzMetadaArgs = {

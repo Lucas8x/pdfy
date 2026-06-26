@@ -167,10 +167,23 @@ const program = new Command('pdfy')
     }
   )
   .addOption(
-    new Option('--cbz', 'Create CBZ file instead of PDF').conflicts([
+    new Option('--cbz', 'Create CBZ file instead of PDF.').conflicts([
       'pw',
       'password',
     ])
+  )
+  .addOption(
+    new Option(
+      '--skip-animated-frame',
+      'Do not insert first frame of animated images on PDF/CBZ'
+    )
+      .default(false)
+      .conflicts(['includeAnimated'])
+  )
+  .option(
+    '--include-animated',
+    'Also process animated images, this will drastically increase processing time. Only CBZ support animated images.',
+    false
   )
   .parse(process.argv);
 
@@ -184,6 +197,8 @@ export const {
   sort,
   password,
   cbz: enableCBZ,
+  skipAnimatedFrame,
+  includeAnimated,
 } = program.opts<{
   input: string | null;
   output: string;
@@ -194,4 +209,14 @@ export const {
   sort: SORTING_TYPES;
   password: string;
   cbz: boolean;
+  skipAnimatedFrame: boolean;
+  includeAnimated: boolean;
 }>();
+
+export const cbzAnimationSupport =
+  enableCBZ && includeAnimated && !skipAnimatedFrame;
+
+if (!enableCBZ && includeAnimated) {
+  console.warn('--include-animated need to be used with the --cbz');
+  process.exit(1);
+}

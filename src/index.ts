@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
+  cbzAnimationSupport,
   enableCBZ,
   inputPath,
   outputPath,
@@ -58,7 +59,9 @@ async function processFolder(folderPath: string, userPassword: string) {
 
     if (data.buffer) {
       if (enableCBZ) {
-        const filename = `${String(data.index + 1).padStart(padMax, '0')}.jpg`;
+        const filename = String(data.index + 1)
+          .padStart(padMax, '0')
+          .concat(data.isAnimated && cbzAnimationSupport ? '.webp' : '.jpeg');
         cbz?.append(data.buffer, filename);
       } else {
         pdf?.append(data.buffer, data.width, data.height);

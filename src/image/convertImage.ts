@@ -1,13 +1,32 @@
 import fs from 'node:fs/promises';
 import type sharp from 'sharp';
 import type { ImageCompresed } from '../@types';
-import { maxHeight, maxWidth, quality } from '../cli/args';
+import {
+  enableCBZ,
+  maxHeight,
+  maxWidth,
+  quality,
+  skipAnimatedFrame,
+} from '../cli/args';
 import { makeClickablePath } from '../utils';
 import { getSharpInstance } from './getSharpInstance';
 
 const COMPRESSION_THRESHOLD = 5 * 1024 * 1024; // 5MB em bytes
 
-async function compressImage(img: sharp.Sharp, originalSize: number) {
+async function compressImage(
+  img: sharp.Sharp,
+  originalSize: number,
+  isAnimated: boolean
+) {
+  if (isAnimated && enableCBZ) {
+    return await img
+      .webp({
+        quality,
+        effort: 6,
+      })
+      .toBuffer();
+  }
+
   let buffer = await img
     .flatten({ background: '#ffffff' })
     .jpeg({
@@ -24,7 +43,7 @@ async function compressImage(img: sharp.Sharp, originalSize: number) {
     compressionCount < 3 &&
     (buffer.length > originalSize || buffer.length > COMPRESSION_THRESHOLD)
   ) {
-    const defaultCompression = await img
+    const heavyReduction = await img
       .jpeg({
         quality: quality - 10 * compressionCount,
         progressive: true,
@@ -33,8 +52,8 @@ async function compressImage(img: sharp.Sharp, originalSize: number) {
       })
       .toBuffer();
 
-    if (defaultCompression.length < buffer.length) {
-      buffer = defaultCompression;
+    if (heavyReduction.length < buffer.length) {
+      buffer = heavyReduction;
       compressionCount += 1;
     } else {
       break;
@@ -51,7 +70,21 @@ export async function convertImage(
   try {
     const image = await getSharpInstance(file);
     const metadata = await image.metadata();
-    let { width, height } = metadata;
+    const { width, height, pages } = metadata;
+
+    const isAnimated = (pages ?? 1) > 1;
+    if (skipAnimatedFrame && isAnimated) {
+      return [
+        null,
+        {
+          buffer: null,
+          width,
+          height,
+          originalSize: 0,
+          isAnimated,
+        },
+      ];
+    }
 
     if (width === undefined || height === undefined) {
       logError(
@@ -60,24 +93,18 @@ export async function convertImage(
       return ['UNKNOWN_DIMENSIONS', null];
     }
 
-    const shouldResize = width > maxWidth || height > maxHeight;
-
-    if (shouldResize) {
-      const scale = Math.min(maxWidth / width, maxHeight / height);
-      width = Math.round(width * scale);
-      height = Math.round(height * scale);
-    }
-
-    const pipeline = image.resize(width, height, {
+    const pipeline = image.resize({
+      width: maxWidth,
+      height: maxHeight,
       fit: 'inside',
       withoutEnlargement: true,
     });
 
     const originalSize = (await fs.stat(file)).size;
 
-    const buffer = await compressImage(pipeline, originalSize);
+    const buffer = await compressImage(pipeline, originalSize, isAnimated);
 
-    return [null, { buffer, width, height, originalSize }];
+    return [null, { buffer, width, height, originalSize, isAnimated }];
   } catch (error) {
     const err = error instanceof Error ? error.message : 'UNKNOWN_ERROR';
 

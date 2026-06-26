@@ -4,9 +4,9 @@ import type { ImageCompresed } from '../@types';
 import { concurrency } from '../cli/args';
 import { convertImage } from './convertImage';
 
-export async function* processImages(
-  files: string[]
-): AsyncGenerator<{ index: number } & ImageCompresed> {
+type ProcessImagesReturn = AsyncGenerator<{ index: number } & ImageCompresed>;
+
+export async function* processImages(files: string[]): ProcessImagesReturn {
   const bar = new ProgressBar(
     '🔄 Processing images [:current/:total] [:bar] :percent% :rate imgs/s ETA :etas',
     {

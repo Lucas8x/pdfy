@@ -5,7 +5,7 @@ Pdfy is a CLI tool for converting and compressing a image folder into a single P
 ## Features
 
 - Converts images from a selected folder into one PDF.
-- Supports JPG, PNG, WebP, JFIF, TIFF, SVG, AVIF, BMP formats.
+- Supports JPG, PNG, WebP, JFIF, TIFF, SVG, AVIF, BMP, GIF formats.
 - Resizes images larger than 1920×1080.
 - Reports original size vs final PDF size.
 - Reduce image size using progressive encoding.
@@ -41,7 +41,10 @@ pdfy [OPTIONS]
 -h, --height <number>       Maximum height of the images in pixels. (default: 1080)
 -s, --sort <newest|oldest>  Determines the order in which the images will be inserted into the PDF. (default: "newest")
 --pw, --password <string>   Protect file with password.
---cbz                       Create CBZ file instead of PDF
+--cbz                       Create CBZ file instead of PDF.
+--skip-animated-frame       Do not insert first frame of animated images on PDF/CBZ (default: false)
+--include-animated          Also process animated images, this will drastically increase processing time. 
+                            Only CBZ support animated images. (default: false)
 -V, --version               output the cli version number
 --help                      display this help message
 ```
