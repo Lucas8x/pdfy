@@ -6,6 +6,9 @@
     "clientKind": "git",
     "useIgnoreFile": true
   },
+  "files": {
+    "includes": ["!src/utils/lib"]
+  },
   "linter": {
     "enabled": true,
     "rules": {
