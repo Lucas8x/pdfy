@@ -24,7 +24,7 @@ export async function* processImages(files: string[]): ProcessImagesReturn {
 
     bar.tick();
     if (error || !result) {
-      return null;
+      return false;
     }
 
     return {
@@ -33,7 +33,7 @@ export async function* processImages(files: string[]): ProcessImagesReturn {
     };
   }
 
-  const processedCount = 0;
+  let errorCount = 0;
 
   const source = Readable.from(files.entries()).map(wrapperConvert, {
     concurrency,
@@ -41,12 +41,18 @@ export async function* processImages(files: string[]): ProcessImagesReturn {
   });
 
   for await (const result of source) {
-    if (result) {
-      yield result;
+    if (!result) {
+      errorCount++;
+      continue;
     }
+    yield result;
   }
 
-  if (processedCount > 0) {
-    console.log(`✅ Processed: ${processedCount} of ${files.length}\n`);
+  console.log('');
+  if (errorCount > 0) {
+    console.log(`⛔ Error on: ${errorCount} of ${files.length} files.`);
   }
+  console.log(
+    `✅ Processed: ${files.length - errorCount} of ${files.length} files.\n`
+  );
 }
