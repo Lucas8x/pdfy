@@ -34,6 +34,7 @@ NOTE: On windows you can press shift + right click to open terminal in selected 
 ```bash
 pdfy [OPTIONS]
 
+-i, --input <path>          Input directory that will be converted (default: current working directory)
 -o, --output <path>         Output directory of pdf (default: current working directory)
 -c, --concurrency <number>  Number of concurrent processes to use. (default: half of your CPU cores)
 -q, --quality <number>      Quality of the compressed images [1-100, "max","all" ]. (default: 80)
@@ -69,24 +70,26 @@ Protect file with a password:
 ```bash
 pdfy --password 'a1b2c3'
 ```
-NOTE: quotation marks will not be part of the password.
-
-A complete example:
-```bash
-pdfy -c 8 -q 50 -w 1280 -h 720 -s oldest -o F:\images\pdfs --password '1234'
-```
+*NOTE: quotation marks will not be part of the password.
 
 Create CBZ file instead of PDF:
 ```bash
 pdfy --cbz
 ```
-NOTE: --password doesn't work in CBZ format.
+*NOTE: --password doesn't work in CBZ format.
+
+A complete example:
+```bash
+pdfy -i C:\images -c 8 -q 50 -w 1280 -h 720 -s oldest -o F:\images\pdfs --password '1234'
+```
+*NOTE: The input and output disks can be different; no problem.
 
 ## Built with
 
 - sharp - Image manipulation/processing
 - bmp-js - Bmp format suport
 - pdfkit - PDF manipulation
+- archiver - CBZ manipulation
 
 ## Development 
 
