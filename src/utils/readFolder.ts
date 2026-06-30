@@ -1,8 +1,7 @@
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { sort } from '../cli/args';
-
-const EXTENSION_REGEX = /\.(jpe?g|png|webp|jfif|tiff|svg|avif|bmp|gif)$/i;
+import { EXTENSION_REGEX } from '../constants';
 
 export async function readFolder(inputFolder: string): Promise<string[]> {
   try {

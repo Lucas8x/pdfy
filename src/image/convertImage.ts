@@ -8,10 +8,9 @@ import {
   quality,
   skipAnimatedFrame,
 } from '../cli/args';
+import { COMPRESSION_THRESHOLD } from '../constants';
 import { makeClickablePath } from '../utils';
 import { getSharpInstance } from './getSharpInstance';
-
-const COMPRESSION_THRESHOLD = 5 * 1024 * 1024; // 5MB em bytes
 
 async function compressImage(
   img: sharp.Sharp,

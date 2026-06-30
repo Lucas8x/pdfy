@@ -1,26 +1,26 @@
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { Command, Option } from 'commander';
 import pkgJson from '../../package.json';
+import {
+  DEFAULT_CONCURRENCY,
+  DEFAULT_MAX_HEIGHT,
+  DEFAULT_MAX_WIDTH,
+  DEFAULT_QUALITY,
+  DEFAULT_SORTING,
+  NUM_CPUS,
+  SORTING_OPTIONS,
+  type SORTING_TYPES,
+} from '../constants';
 import { parseInteger } from '../utils/integerParser';
 import { validatePassword } from '../utils/passwordValidator';
-
-const numCpus = os.cpus().length;
-const DEFAULT_CONCURRENCY = Math.max(1, Math.floor(numCpus / 2));
-const DEFAULT_QUALITY = 80;
-const DEFAULT_MAX_WIDTH = 1920;
-const DEFAULT_MAX_HEIGHT = 1080;
-const SORTING_OPTIONS = ['newest', 'oldest'] as const;
-type SORTING_TYPES = (typeof SORTING_OPTIONS)[number];
-const DEFAULT_SORTING = SORTING_OPTIONS[0];
 
 const program = new Command('pdfy')
   .version(pkgJson.version)
   .option(
     '-i, --input <path>',
     'Input directory that will be converted',
-    (value) => {
+    (value): string => {
       if (value.trim() === '') {
         console.warn('You provided an empty input path, exiting...');
         process.exit(1);
@@ -53,7 +53,7 @@ const program = new Command('pdfy')
   .option(
     '-o, --output <path>',
     'Output directory of pdf',
-    (value) => {
+    (value): string => {
       if (value.trim() === '') {
         console.warn(
           'You provided an empty output path, current directory will be used.'
@@ -87,10 +87,10 @@ const program = new Command('pdfy')
   )
   .option(
     '-c, --concurrency <number>',
-    `Number of concurrent processes to use. [1-${numCpus}, "all", "max"]`,
-    (value) => {
+    `Number of concurrent processes to use. [1-${NUM_CPUS}, "all", "max"]`,
+    (value): number => {
       if (['all', 'max'].includes(value.trim())) {
-        return numCpus;
+        return NUM_CPUS;
       }
 
       const parsedValue = parseInteger(
@@ -99,11 +99,11 @@ const program = new Command('pdfy')
         DEFAULT_CONCURRENCY
       );
 
-      if (parsedValue > numCpus) {
+      if (parsedValue > NUM_CPUS) {
         console.warn(
-          `You set concurrency above the maximum (${numCpus}). The maximum will be used.`
+          `You set concurrency above the maximum (${NUM_CPUS}). The maximum will be used.`
         );
-        return numCpus;
+        return NUM_CPUS;
       }
 
       return parsedValue;
@@ -113,7 +113,7 @@ const program = new Command('pdfy')
   .option(
     '-q, --quality <number>',
     'Quality of the compressed images [1-100].',
-    (value) => {
+    (value): number => {
       const parsedValue = parseInteger(value, 'quality', DEFAULT_QUALITY);
 
       if (parsedValue > 100) {
@@ -130,13 +130,13 @@ const program = new Command('pdfy')
   .option(
     '-w, --width <number>',
     'Maximum width of the images in pixels.',
-    (value) => parseInteger(value, 'width', DEFAULT_MAX_WIDTH),
+    (value): number => parseInteger(value, 'width', DEFAULT_MAX_WIDTH),
     DEFAULT_MAX_WIDTH
   )
   .option(
     '-h, --height <number>',
     'Maximum height of the images in pixels.',
-    (value) => parseInteger(value, 'height', DEFAULT_MAX_HEIGHT),
+    (value): number => parseInteger(value, 'height', DEFAULT_MAX_HEIGHT),
     DEFAULT_MAX_HEIGHT
   )
   .option(
@@ -157,7 +157,7 @@ const program = new Command('pdfy')
   .option(
     '--pw, --password <string>',
     'Protect file with password.',
-    (value) => {
+    (value): string => {
       const [error, isValid] = validatePassword(value);
       if (!isValid) {
         console.warn(error);
