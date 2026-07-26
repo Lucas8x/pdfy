@@ -41,6 +41,9 @@ export function createCBZ(
     append(stream: Buffer, name: string) {
       archive.append(stream, { name });
     },
+    copy(path: string, name: string) {
+      archive.file(path, { name });
+    },
     async finalize() {
       await archive.finalize();
     },

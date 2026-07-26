@@ -44,7 +44,8 @@ pdfy [OPTIONS]
 --pw, --password <string>   Protect file with password.
 --cbz                       Create CBZ file instead of PDF.
 --skip-animated-frame       Do not insert first frame of animated images on PDF/CBZ (default: false)
---include-animated          Also process animated images, this will drastically increase processing time. 
+--copy-animated             Do not compress animated images; copy them as-is into CBZ. (default: false)
+--compress-animated         Also compress animated images, this will drastically increase processing time. 
                             Only CBZ support animated images. (default: false)
 -V, --version               output the cli version number
 --help                      display this help message
@@ -77,6 +78,11 @@ Create CBZ file instead of PDF:
 pdfy --cbz
 ```
 *NOTE: --password doesn't work in CBZ format.
+
+To include animated images into CBZ:
+```bash
+pdfy --cbz --copy-animated
+```
 
 A complete example:
 ```bash

@@ -2,7 +2,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
-  cbzAnimationSupport,
   enableCBZ,
   inputPath,
   outputPath,
@@ -52,26 +51,33 @@ async function processFolder(folderPath: string, userPassword: string) {
   }
 
   const padMax = [...files.length.toString()].length;
-  let totalOriginalSize = 0;
 
-  for await (const data of processImages(files)) {
-    totalOriginalSize += data.originalSize;
+  for await (const file of processImages(files)) {
+    const filename = String(file.index + 1)
+      .padStart(padMax, '0')
+      .concat(file.extension);
 
-    if (data.buffer) {
+    if (file.buffer) {
       if (enableCBZ) {
-        const filename = String(data.index + 1)
-          .padStart(padMax, '0')
-          .concat(data.isAnimated && cbzAnimationSupport ? '.webp' : '.jpeg');
-        cbz?.append(data.buffer, filename);
+        cbz?.append(file.buffer, filename);
       } else {
-        pdf?.append(data.buffer, data.width, data.height);
+        pdf?.append(file.buffer, file.width, file.height);
       }
     }
 
-    data.buffer = null;
+    if (file?.useCopyInstead && enableCBZ) {
+      cbz?.copy(file.path, filename);
+    }
+
+    file.buffer = null;
   }
 
   await (cbz || pdf)?.finalize();
+
+  let totalOriginalSize = 0;
+  for (const file of files) {
+    totalOriginalSize += file.size;
+  }
 
   await printOutputDetails(finalOutputPath, totalOriginalSize);
 }

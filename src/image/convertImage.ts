@@ -1,7 +1,9 @@
-import fs from 'node:fs/promises';
+import path from 'node:path';
 import type sharp from 'sharp';
-import type { ImageCompresed } from '../@types';
+import type { File, ImageCompresed } from '../@types';
 import {
+  cbzAnimationSupport,
+  copyAnimated,
   enableCBZ,
   maxHeight,
   maxWidth,
@@ -63,15 +65,16 @@ async function compressImage(
 }
 
 export async function convertImage(
-  file: string,
+  file: File,
   logError: (message: string) => void
 ): Promise<[null, ImageCompresed] | [string, null]> {
   try {
-    const image = await getSharpInstance(file);
+    const image = await getSharpInstance(file.path);
     const metadata = await image.metadata();
     const { width, height, pages } = metadata;
 
     const isAnimated = (pages ?? 1) > 1;
+
     if (skipAnimatedFrame && isAnimated) {
       return [
         null,
@@ -79,15 +82,29 @@ export async function convertImage(
           buffer: null,
           width,
           height,
-          originalSize: 0,
-          isAnimated,
+          extension: '',
         },
       ];
     }
 
+    if (cbzAnimationSupport && isAnimated && copyAnimated) {
+      return [
+        null,
+        {
+          buffer: null,
+          width,
+          height,
+          extension: path.extname(file.path),
+          useCopyInstead: true,
+        },
+      ];
+    }
+
+    const extension = isAnimated && cbzAnimationSupport ? '.webp' : '.jpeg';
+
     if (width === undefined || height === undefined) {
       logError(
-        `❌ Unable to get image dimensions ${makeClickablePath(file).ansi}`
+        `❌ Unable to get image dimensions ${makeClickablePath(file.path).ansi}`
       );
       return ['UNKNOWN_DIMENSIONS', null];
     }
@@ -99,15 +116,15 @@ export async function convertImage(
       withoutEnlargement: true,
     });
 
-    const originalSize = (await fs.stat(file)).size;
+    const buffer = await compressImage(pipeline, file.size, isAnimated);
 
-    const buffer = await compressImage(pipeline, originalSize, isAnimated);
-
-    return [null, { buffer, width, height, originalSize, isAnimated }];
+    return [null, { buffer, width, height, extension }];
   } catch (error) {
     const err = error instanceof Error ? error.message : 'UNKNOWN_ERROR';
 
-    logError(`\n❌ Error processing ${makeClickablePath(file).ansi}: ${err}`);
+    logError(
+      `\n❌ Error processing ${makeClickablePath(file.path).ansi}: ${err}`
+    );
 
     return [err, null];
   }

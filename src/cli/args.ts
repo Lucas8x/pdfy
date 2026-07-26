@@ -179,11 +179,19 @@ const program = new Command('pdfy')
       'Do not insert first frame of animated images on PDF/CBZ'
     )
       .default(false)
-      .conflicts(['includeAnimated'])
+      .conflicts(['compressAnimated', 'copyAnimated'])
+  )
+  .addOption(
+    new Option(
+      '--copy-animated',
+      'Do not compress animated images; copy them as-is into CBZ.'
+    )
+      .default(false)
+      .conflicts(['compressAnimated', 'skipAnimatedFrame'])
   )
   .option(
-    '--include-animated',
-    'Also process animated images, this will drastically increase processing time. Only CBZ support animated images.',
+    '--compress-animated',
+    'Also compress animated images, this will drastically increase processing time. Only CBZ support animated images.',
     false
   )
   .option('--ls', 'List files extensions of curent folder and exit.', false)
@@ -200,7 +208,8 @@ export const {
   password,
   cbz: enableCBZ,
   skipAnimatedFrame,
-  includeAnimated,
+  copyAnimated,
+  compressAnimated,
   ls,
 } = program.opts<{
   input: string | null;
@@ -213,15 +222,21 @@ export const {
   password: string;
   cbz: boolean;
   skipAnimatedFrame: boolean;
-  includeAnimated: boolean;
+  copyAnimated: boolean;
+  compressAnimated: boolean;
   ls: boolean;
 }>();
 
 export const cbzAnimationSupport =
-  enableCBZ && includeAnimated && !skipAnimatedFrame;
+  enableCBZ && (copyAnimated || compressAnimated) && !skipAnimatedFrame;
 
-if (!enableCBZ && includeAnimated) {
-  console.warn('--include-animated need to be used with the --cbz');
+if (!enableCBZ && copyAnimated) {
+  console.warn('--copy-animated need to be used with the --cbz');
+  process.exit(1);
+}
+
+if (!enableCBZ && compressAnimated) {
+  console.warn('--compress-animated need to be used with the --cbz');
   process.exit(1);
 }
 

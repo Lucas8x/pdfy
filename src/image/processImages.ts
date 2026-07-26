@@ -1,12 +1,14 @@
 import { Readable } from 'node:stream';
-import type { ImageCompresed } from '../@types';
+import type { File, ImageCompresed } from '../@types';
 import { concurrency } from '../cli/args';
 import ProgressBar from '../utils/lib/node-progress';
 import { convertImage } from './convertImage';
 
-type ProcessImagesReturn = AsyncGenerator<{ index: number } & ImageCompresed>;
+type ProcessImagesReturn = AsyncGenerator<
+  { index: number; path: string } & ImageCompresed
+>;
 
-export async function* processImages(files: string[]): ProcessImagesReturn {
+export async function* processImages(files: File[]): ProcessImagesReturn {
   const bar = new ProgressBar(
     '🔄 Processing images [:current/:total] [:bar] :percent% | :rate imgs/s | ETA :veta',
     {
@@ -17,28 +19,30 @@ export async function* processImages(files: string[]): ProcessImagesReturn {
     }
   );
 
-  async function wrapperConvert([index, file]: [number, string]) {
-    const [error, result] = await convertImage(file, (msg) =>
-      bar.interrupt(msg)
-    );
+  const source = Readable.from(files.entries()).map(
+    async ([index, file]: [number, File]) => {
+      const [error, result] = await convertImage(file, (msg) =>
+        bar.interrupt(msg)
+      );
 
-    bar.tick();
-    if (error || !result) {
-      return false;
+      bar.tick();
+      if (error || !result) {
+        return false;
+      }
+
+      return {
+        index,
+        path: file.path,
+        ...result,
+      };
+    },
+    {
+      concurrency,
+      //highWaterMark: 1,
     }
-
-    return {
-      index,
-      ...result,
-    };
-  }
+  );
 
   let errorCount = 0;
-
-  const source = Readable.from(files.entries()).map(wrapperConvert, {
-    concurrency,
-    //highWaterMark: 1,
-  });
 
   for await (const result of source) {
     if (!result) {
