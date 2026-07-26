@@ -14,6 +14,7 @@ import {
 } from '../constants';
 import { parseInteger } from '../utils/integerParser';
 import { validatePassword } from '../utils/passwordValidator';
+import { countExtensions } from './countExtensions';
 
 const program = new Command('pdfy')
   .version(pkgJson.version)
@@ -185,6 +186,7 @@ const program = new Command('pdfy')
     'Also process animated images, this will drastically increase processing time. Only CBZ support animated images.',
     false
   )
+  .option('--ls', 'List files extensions of curent folder and exit.', false)
   .parse(process.argv);
 
 export const {
@@ -199,6 +201,7 @@ export const {
   cbz: enableCBZ,
   skipAnimatedFrame,
   includeAnimated,
+  ls,
 } = program.opts<{
   input: string | null;
   output: string;
@@ -211,6 +214,7 @@ export const {
   cbz: boolean;
   skipAnimatedFrame: boolean;
   includeAnimated: boolean;
+  ls: boolean;
 }>();
 
 export const cbzAnimationSupport =
@@ -219,4 +223,9 @@ export const cbzAnimationSupport =
 if (!enableCBZ && includeAnimated) {
   console.warn('--include-animated need to be used with the --cbz');
   process.exit(1);
+}
+
+if (ls) {
+  await countExtensions(inputPath ?? process.cwd());
+  process.exit(0);
 }
