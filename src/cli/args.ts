@@ -157,7 +157,7 @@ const program = new Command('pdfy')
   )
   .option(
     '--pw, --password <string>',
-    'Protect file with password.',
+    'Protect PDF file with password.',
     (value): string => {
       const [error, isValid] = validatePassword(value);
       if (!isValid) {

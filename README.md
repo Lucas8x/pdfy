@@ -34,21 +34,32 @@ NOTE: On windows you can press shift + right click to open terminal in selected 
 ```bash
 pdfy [OPTIONS]
 
--i, --input <path>          Input directory that will be converted (default: current working directory)
--o, --output <path>         Output directory of pdf (default: current working directory)
--c, --concurrency <number>  Number of concurrent processes to use. (default: half of your CPU cores)
--q, --quality <number>      Quality of the compressed images [1-100, "max","all" ]. (default: 80)
--w, --width <number>        Maximum width of the images in pixels. (default: 1920)
--h, --height <number>       Maximum height of the images in pixels. (default: 1080)
--s, --sort <newest|oldest>  Determines the order in which the images will be inserted into the PDF. (default: "newest")
---pw, --password <string>   Protect file with password.
+-i, --input <path>          Input directory that will be converted.
+                            (default: current working directory)
+-o, --output <path>         Output directory of pdf/cbz.
+                            (default: current working directory)
+-c, --concurrency <number>  Number of concurrent processes to use. [1-24+, "max", "all"].
+                            (default: half of your CPU cores)
+-q, --quality <number>      Quality of the compressed images [1-100]. 
+                            (default: 80)
+-w, --width <number>        Maximum width of the images in pixels. 
+                            (default: 1920)
+-h, --height <number>       Maximum height of the images in pixels. 
+                            (default: 1080)
+-s, --sort <newest|oldest>  Determines the order in which the images will be inserted into the PDF. 
+                            (default: "newest")
+--pw, --password <string>   Protect PDF file with password.
 --cbz                       Create CBZ file instead of PDF.
---skip-animated-frame       Do not insert first frame of animated images on PDF/CBZ (default: false)
---copy-animated             Do not compress animated images; copy them as-is into CBZ. (default: false)
---compress-animated         Also compress animated images, this will drastically increase processing time. 
-                            Only CBZ support animated images. (default: false)
--V, --version               output the cli version number
---help                      display this help message
+--skip-animated-frame       Do not insert first frame of animated images on PDF/CBZ.
+                            (default: false)
+--copy-animated             Do not compress animated images; copy them as-is into CBZ. 
+                            (default: false)
+--compress-animated         Also compress animated images, this will 
+                            drastically increase processing time. 
+                            Only CBZ support animated images. 
+                            (default: false)
+-V, --version               Print the cli version number.
+--help                      Display this help message.
 ```
 
 ### Examples
