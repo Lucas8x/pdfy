@@ -55,7 +55,9 @@ async function processFolder(folderPath: string, userPassword: string) {
   for await (const file of processImages(files)) {
     const filename = String(file.index + 1)
       .padStart(padMax, '0')
-      .concat(file.extension);
+      .concat(
+        file.extension.startsWith('.') ? file.extension : `.${file.extension}`
+      );
 
     if (file.buffer) {
       if (enableCBZ) {
