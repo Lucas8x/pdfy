@@ -21,15 +21,17 @@ export async function* processImages(files: File[]): ProcessImagesReturn {
 
   const source = Readable.from(files.entries()).map(
     async ([index, file]: [number, File]) => {
-      const [error, result] = await convertImage(file, (msg) =>
-        bar.interrupt(msg)
-      );
+      const [error, result] = await convertImage(file);
 
-      bar.tick();
-      if (error || !result) {
+      if (!result) {
+        if (error) {
+          bar.interrupt(error);
+        }
+        bar.tick();
         return false;
       }
 
+      bar.tick();
       return {
         index,
         path: file.path,

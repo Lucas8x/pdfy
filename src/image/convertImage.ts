@@ -65,8 +65,7 @@ async function compressImage(
 }
 
 export async function convertImage(
-  file: File,
-  logError: (message: string) => void
+  file: File
 ): Promise<[null, ImageCompresed] | [string, null]> {
   try {
     const image = await getSharpInstance(file.path);
@@ -103,10 +102,10 @@ export async function convertImage(
     const extension = isAnimated && cbzAnimationSupport ? '.webp' : '.jpeg';
 
     if (width === undefined || height === undefined) {
-      logError(
-        `❌ Unable to get image dimensions ${makeClickablePath(file.path).ansi}`
-      );
-      return ['UNKNOWN_DIMENSIONS', null];
+      return [
+        `❌ Unable to get image dimensions ${makeClickablePath(file.path).ansi}`,
+        null,
+      ];
     }
 
     const pipeline = image.resize({
@@ -122,10 +121,9 @@ export async function convertImage(
   } catch (error) {
     const err = error instanceof Error ? error.message : 'UNKNOWN_ERROR';
 
-    logError(
-      `\n❌ Error processing ${makeClickablePath(file.path).ansi}: ${err}`
-    );
-
-    return [err, null];
+    return [
+      `\n❌ Error processing ${makeClickablePath(file.path).ansi}: ${err}`,
+      null,
+    ];
   }
 }
