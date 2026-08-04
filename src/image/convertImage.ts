@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type sharp from 'sharp';
+import type { Sharp } from 'sharp';
 import type { File, ImageCompresed } from '../@types';
 import {
   cbzAnimationSupport,
@@ -15,7 +15,7 @@ import { makeClickablePath } from '../utils';
 import { getSharpInstance } from './getSharpInstance';
 
 async function compressImage(
-  img: sharp.Sharp,
+  img: Sharp,
   originalSize: number,
   isAnimated: boolean
 ) {

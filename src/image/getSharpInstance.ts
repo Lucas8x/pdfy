@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises';
 import { sharpFromBmp } from '@huh-david/bmp-js/sharp';
-import sharp from 'sharp';
+import sharp, { type Sharp } from 'sharp';
 import { cbzAnimationSupport } from '../cli/args';
 
 sharp.cache(false);
 
-export async function getSharpInstance(filePath: string): Promise<sharp.Sharp> {
+export async function getSharpInstance(filePath: string): Promise<Sharp> {
   if (filePath.endsWith('.bmp')) {
     const bmpFile = await fs.readFile(filePath);
     return sharpFromBmp(bmpFile);

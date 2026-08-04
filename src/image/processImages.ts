@@ -48,7 +48,7 @@ export async function* processImages(files: File[]): ProcessImagesReturn {
 
   for await (const result of source) {
     if (!result) {
-      errorCount++;
+      errorCount = +1;
       continue;
     }
     yield result;

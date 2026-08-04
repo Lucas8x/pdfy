@@ -23,7 +23,7 @@ export async function scanSupportedFiles(inputFolder: string) {
       const ext = path.extname(file.name).toLowerCase();
       const support = SUPPORTED_EXTENSIONS.has(ext);
       if (!support) {
-        unsupportedCount++;
+        unsupportedCount += 1;
         unsupportedFormats.add(ext);
         return false;
       }
@@ -31,10 +31,10 @@ export async function scanSupportedFiles(inputFolder: string) {
       extensionCounts.set(ext, (extensionCounts.get(ext) ?? 0) + 1);
 
       if (STATIC_IMAGE_EXTENSIONS.has(ext)) {
-        staticImages++;
+        staticImages += 1;
       }
       if (ANIMATED_EXTENSIONS.has(ext)) {
-        animatedImages++;
+        animatedImages += 1;
       }
 
       return true;

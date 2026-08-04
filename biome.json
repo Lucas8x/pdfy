@@ -33,6 +33,9 @@
           "fix": "none"
         },
         "noUnusedVariables": "warn"
+      },
+      "performance": {
+        "noAwaitInLoops": "off"
       }
     }
   },
@@ -45,7 +48,9 @@
     "enabled": true,
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": "on",
+        "useSortedKeys": "off",
+        "useSortedPackageJson": "off"
       }
     }
   }

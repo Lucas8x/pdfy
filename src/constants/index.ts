@@ -9,7 +9,7 @@ export const DEFAULT_MAX_HEIGHT = 1080;
 export const SORTING_OPTIONS = ['newest', 'oldest'] as const;
 export type SORTING_TYPES = (typeof SORTING_OPTIONS)[number];
 
-export const DEFAULT_SORTING = SORTING_OPTIONS[0];
+export const DEFAULT_SORTING = SORTING_OPTIONS.at(0);
 
 export const NUM_CPUS = os.cpus().length;
 

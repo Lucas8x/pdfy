@@ -8,10 +8,7 @@ async function main() {
   const selectedFolders =
     inputPath === null ? await selectFolder() : [inputPath];
 
-  if (
-    !(selectedFolders && Array.isArray(selectedFolders)) ||
-    selectedFolders.length === 0
-  ) {
+  if (selectedFolders.length === 0) {
     console.warn('No folder selected.');
     return;
   }

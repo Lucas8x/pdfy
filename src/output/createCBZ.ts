@@ -17,7 +17,7 @@ export function createCBZ(
   archive.pipe(writeStream);
 
   if (metadata) {
-    const title = path.basename(outputFilePath).split('.')[0];
+    const [title] = path.basename(outputFilePath).split('.');
     const xml = createComicInfo({
       title,
       pageCount: metadata.imagesLength,
@@ -41,8 +41,8 @@ export function createCBZ(
     append(stream: Buffer, name: string) {
       archive.append(stream, { name });
     },
-    copy(path: string, name: string) {
-      archive.file(path, { name });
+    copy(filePath: string, name: string) {
+      archive.file(filePath, { name });
     },
     async finalize() {
       await archive.finalize();
