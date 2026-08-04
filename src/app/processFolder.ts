@@ -1,7 +1,6 @@
-#!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { enableCBZ, outputPath } from '../cli/args';
+import { enableCBZ, outputPath, sort } from '../cli/args';
 import { processImages } from '../image/processImages';
 import { createCBZ } from '../output/createCBZ';
 import { createPDF } from '../output/createPDF';
@@ -14,7 +13,7 @@ export async function processFolder(folderPath: string, password?: string) {
     `📂 Initiating process in: ${makeClickablePath(folderPath).ansi}`
   );
 
-  const files = await readFolder(folderPath);
+  const files = await readFolder(folderPath, sort);
 
   if (!files.length) {
     console.error(
