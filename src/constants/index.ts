@@ -15,7 +15,30 @@ export const NUM_CPUS = os.cpus().length;
 
 export const DEFAULT_CONCURRENCY = Math.max(1, Math.floor(NUM_CPUS / 2));
 
-export const EXTENSION_REGEX =
-  /\.(jpe?g|png|webp|jfif|tiff|svg|avif|bmp|gif)$/i;
+export const STATIC_IMAGE_EXTENSIONS = new Set([
+  '.avif',
+  '.bmp',
+  '.jfif',
+  '.jpeg',
+  '.jpg',
+  '.png',
+  '.svg',
+  '.tiff',
+  '.webp',
+]);
+
+export const ANIMATED_EXTENSIONS = new Set(['.apng', '.avif', '.gif', '.webp']);
+
+export const SUPPORTED_EXTENSIONS =
+  STATIC_IMAGE_EXTENSIONS.union(ANIMATED_EXTENSIONS);
 
 export const COMPRESSION_THRESHOLD = 5 * 1024 * 1024; // 5MB em bytes
+
+export const IGNORE_DIRECTORIES = new Set([
+  '.git',
+  '.svn',
+  '.vscode',
+  '.zed',
+  '.idea',
+  'node_modules',
+]);

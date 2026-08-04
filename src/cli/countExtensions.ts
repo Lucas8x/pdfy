@@ -1,33 +1,26 @@
-import { glob } from 'node:fs/promises';
-import path from 'node:path';
 import { makeClickablePath } from '../utils';
+import { scanSupportedFiles } from '../utils/readFolder';
 
 export async function countExtensions(inputFolder: string) {
-  const counts = new Map<string, number>();
-  let padMax = 0;
-
   try {
-    for await (const entry of glob(
-      '*.{jpg,jpeg,png,webp,jfif,tiff,svg,avif,bmp,gif}',
-      {
-        cwd: inputFolder,
-      }
-    )) {
-      const extension = path.extname(entry).toLowerCase();
-      counts.set(extension, (counts.get(extension) ?? 0) + 1);
+    const { extensionCounts } = await scanSupportedFiles(inputFolder);
 
-      if (extension.length > padMax) {
-        padMax = extension.length;
-      }
-    }
-
-    if (!counts.size) {
+    if (extensionCounts.size === 0) {
       console.log(
         `⚠️ No supported image files found in ${makeClickablePath(inputFolder).ansi} folder. `
       );
+      return;
     }
 
-    for (const [ext, count] of counts) {
+    let padMax = 0;
+
+    for (const ext of extensionCounts.keys()) {
+      if (ext.length > padMax) {
+        padMax = ext.length;
+      }
+    }
+
+    for (const [ext, count] of extensionCounts) {
       console.log(`${ext.padEnd(padMax, ' ')} = ${count} items`);
     }
   } catch (error) {

@@ -1,31 +1,62 @@
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import type { File } from '../@types';
-import { sort } from '../cli/args';
-import { EXTENSION_REGEX } from '../constants';
+import {
+  ANIMATED_EXTENSIONS,
+  type SORTING_TYPES,
+  STATIC_IMAGE_EXTENSIONS,
+  SUPPORTED_EXTENSIONS,
+} from '../constants';
 
-export async function readFolder(inputFolder: string): Promise<File[]> {
-  try {
-    let unsupportedCount = 0;
-    let unsupportedFormats = '';
+export async function scanSupportedFiles(inputFolder: string) {
+  const files = await readdir(inputFolder, { withFileTypes: true });
 
-    const files = await readdir(inputFolder, {
-      withFileTypes: true,
+  let unsupportedCount = 0;
+  const unsupportedFormats = new Set<string>();
+  const extensionCounts = new Map<string, number>();
+  let staticImages = 0;
+  let animatedImages = 0;
+
+  const filteredFiles = files
+    .filter((dirent) => dirent.isFile())
+    .filter((file) => {
+      const ext = path.extname(file.name).toLowerCase();
+      const support = SUPPORTED_EXTENSIONS.has(ext);
+      if (!support) {
+        unsupportedCount++;
+        unsupportedFormats.add(ext);
+        return false;
+      }
+
+      extensionCounts.set(ext, (extensionCounts.get(ext) ?? 0) + 1);
+
+      if (STATIC_IMAGE_EXTENSIONS.has(ext)) {
+        staticImages++;
+      }
+      if (ANIMATED_EXTENSIONS.has(ext)) {
+        animatedImages++;
+      }
+
+      return true;
     });
 
-    const filteredFiles = files
-      .filter((dirent) => dirent.isFile())
-      .filter((file) => {
-        const support = EXTENSION_REGEX.test(file.name);
-        if (!support) {
-          unsupportedCount += 1;
-          const ext = path.extname(file.name).toLowerCase();
-          if (!unsupportedFormats.includes(ext)) {
-            unsupportedFormats = unsupportedFormats.concat(ext, '|');
-          }
-        }
-        return support;
-      });
+  return {
+    filteredFiles,
+    extensionCounts,
+    staticImages,
+    animatedImages,
+    unsupportedCount,
+    unsupportedFormats,
+  };
+}
+
+export async function readFolder(
+  inputFolder: string,
+  sort: SORTING_TYPES = 'newest'
+): Promise<File[]> {
+  try {
+    const { filteredFiles, unsupportedCount, unsupportedFormats } =
+      await scanSupportedFiles(inputFolder);
 
     const sortedFiles = (
       await Promise.all(
@@ -47,7 +78,7 @@ export async function readFolder(inputFolder: string): Promise<File[]> {
 
     if (unsupportedCount > 0) {
       console.log(
-        `⚠️ ${unsupportedCount} file(s) ignored due to unsupported format: ${unsupportedFormats}`
+        `⚠️ ${unsupportedCount} file(s) ignored due to unsupported format: ${Array.from(unsupportedFormats).join('|')}`
       );
     }
 
