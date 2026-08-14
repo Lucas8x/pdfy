@@ -1,14 +1,12 @@
 import { Readable } from 'node:stream';
-import type { File, ImageCompresed } from '../@types';
+import type { File, ProcessedFile } from '../@types';
 import { concurrency } from '../cli/args';
 import ProgressBar from '../utils/lib/node-progress';
 import { convertImage } from './convertImage';
 
-type ProcessImagesReturn = AsyncGenerator<
-  { index: number; path: string } & ImageCompresed
->;
-
-export async function* processImages(files: File[]): ProcessImagesReturn {
+export async function* processImages(
+  files: File[]
+): AsyncGenerator<ProcessedFile> {
   const bar = new ProgressBar(
     '🔄 Processing images [:current/:total] [:bar] :percent% | :rate imgs/s | ETA :veta',
     {

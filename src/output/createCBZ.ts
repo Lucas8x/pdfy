@@ -1,12 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import type { Readable } from 'node:stream';
 import { ZipArchive } from 'archiver';
-import type { CreateCbzMetadaArgs } from '../@types';
+import type { CreateCbzMetadataArgs } from '../@types';
 import { createComicInfo } from '../utils/createComicInfo';
 
 export function createCBZ(
   outputFilePath: string,
-  metadata?: CreateCbzMetadaArgs
+  metadata?: CreateCbzMetadataArgs
 ) {
   const archive = new ZipArchive({
     zlib: { level: 0 },
@@ -38,7 +39,7 @@ export function createCBZ(
   }
 
   return {
-    append(stream: Buffer, name: string) {
+    append(stream: Buffer | Readable, name: string) {
       archive.append(stream, { name });
     },
     copy(filePath: string, name: string) {

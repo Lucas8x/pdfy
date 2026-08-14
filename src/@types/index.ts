@@ -1,14 +1,29 @@
-export type ImageCompresed = {
-  buffer: Buffer | null;
-  width: number;
-  height: number;
-  extension: string;
-  useCopyInstead?: boolean;
-};
+export type ImageCompressed =
+  | {
+      type: 'buffer';
+      buffer: Buffer;
+      width: number;
+      height: number;
+      extension: string;
+    }
+  | {
+      type: 'copy';
+      buffer: null;
+      width: number;
+      height: number;
+      extension: string;
+    };
 
-export type CreateCbzMetadaArgs = {
-  imagesLength: number;
+export type ProcessedFile = {
+  index: number;
+  path: string;
+} & ImageCompressed;
+
+// =====================================
+
+export type CreateCbzMetadataArgs = {
   birthtime: Date;
+  imagesLength: number;
   mtime: Date;
 };
 
@@ -23,4 +38,9 @@ export type CbzMetadata = {
 export type File = {
   path: string;
   size: number;
+};
+
+export type OutputWriter = {
+  write: (image: ProcessedFile) => void;
+  finalize: () => Promise<void>;
 };

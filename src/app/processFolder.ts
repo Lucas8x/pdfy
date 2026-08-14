@@ -1,10 +1,9 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { enableCBZ, outputPath, sort } from '../cli/args';
 import { processImages } from '../image/processImages';
-import { createCBZ } from '../output/createCBZ';
-import { createPDF } from '../output/createPDF';
+import { createOutputWriter } from '../output/outputWriter';
 import { makeClickablePath } from '../utils';
+import { getOriginFolderStats } from '../utils/getOriginFolderStats';
 import { printOutputDetails } from '../utils/printOutputDetails';
 import { readFolder } from '../utils/readFolder';
 
@@ -26,52 +25,30 @@ export async function processFolder(folderPath: string, password?: string) {
     .basename(folderPath)
     .concat(enableCBZ ? '.cbz' : '.pdf');
 
-  const finalOutputPath = path.join(outputPath, outputFilename);
+  const outputFilePath = path.join(outputPath, outputFilename);
 
-  let cbz: ReturnType<typeof createCBZ> | null = null;
-  let pdf: ReturnType<typeof createPDF> | null = null;
-
-  if (enableCBZ) {
-    const stats = await fs.stat(folderPath);
-    cbz = createCBZ(finalOutputPath, {
-      birthtime: stats.birthtime,
-      mtime: stats.mtime,
-      imagesLength: files.length,
-    });
-  } else {
-    pdf = createPDF(finalOutputPath, password);
-  }
-
-  const padMax = [...files.length.toString()].length;
+  const outputWriter = createOutputWriter({
+    outputFilePath,
+    enableCBZ,
+    padMax: enableCBZ ? [...files.length.toString()].length : 0,
+    metadata: enableCBZ
+      ? {
+          imagesLength: files.length,
+          ...(await getOriginFolderStats(folderPath)),
+        }
+      : undefined,
+    password,
+  });
 
   for await (const file of processImages(files)) {
-    const filename = String(file.index + 1)
-      .padStart(padMax, '0')
-      .concat(
-        file.extension.startsWith('.') ? file.extension : `.${file.extension}`
-      );
-
-    if (file.buffer) {
-      if (enableCBZ) {
-        cbz?.append(file.buffer, filename);
-      } else {
-        pdf?.append(file.buffer, file.width, file.height);
-      }
-    }
-
-    if (file?.useCopyInstead && enableCBZ) {
-      cbz?.copy(file.path, filename);
-    }
-
+    outputWriter.write(file);
     file.buffer = null;
   }
 
-  await (cbz || pdf)?.finalize();
+  await outputWriter.finalize();
 
-  let totalOriginalSize = 0;
-  for (const file of files) {
-    totalOriginalSize += file.size;
-  }
-
-  await printOutputDetails(finalOutputPath, totalOriginalSize);
+  await printOutputDetails(
+    outputFilePath,
+    files.reduce((total, file) => total + file.size, 0)
+  );
 }

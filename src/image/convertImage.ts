@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { Sharp } from 'sharp';
-import type { File, ImageCompresed } from '../@types';
+import type { File, ImageCompressed } from '../@types';
 import {
   cbzAnimationSupport,
   copyAnimated,
@@ -66,7 +66,7 @@ async function compressImage(
 
 export async function convertImage(
   file: File
-): Promise<[null, ImageCompresed] | [string, null]> {
+): Promise<[null, ImageCompressed | null] | [string, null]> {
   try {
     const image = await getSharpInstance(file.path);
     const metadata = await image.metadata();
@@ -75,26 +75,18 @@ export async function convertImage(
     const isAnimated = (pages ?? 1) > 1;
 
     if (skipAnimatedFrame && isAnimated) {
-      return [
-        null,
-        {
-          buffer: null,
-          width,
-          height,
-          extension: '',
-        },
-      ];
+      return [null, null];
     }
 
     if (cbzAnimationSupport && isAnimated && copyAnimated) {
       return [
         null,
         {
+          type: 'copy',
           buffer: null,
           width,
           height,
           extension: path.extname(file.path),
-          useCopyInstead: true,
         },
       ];
     }
@@ -117,7 +109,7 @@ export async function convertImage(
 
     const buffer = await compressImage(pipeline, file.size, isAnimated);
 
-    return [null, { buffer, width, height, extension }];
+    return [null, { type: 'buffer', buffer, width, height, extension }];
   } catch (error) {
     const err = error instanceof Error ? error.message : 'UNKNOWN_ERROR';
 
