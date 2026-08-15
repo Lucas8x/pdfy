@@ -157,7 +157,7 @@ const program = new Command('pdfy')
   )
   .option(
     '--pw, --password <string>',
-    'Protect PDF file with password.',
+    'Protect PDF/CBZ file with password.',
     (value): string => {
       const [error, isValid] = validatePassword(value);
       if (!isValid) {
@@ -167,12 +167,7 @@ const program = new Command('pdfy')
       return value;
     }
   )
-  .addOption(
-    new Option('--cbz', 'Create CBZ file instead of PDF.').conflicts([
-      'pw',
-      'password',
-    ])
-  )
+  .option('--cbz', 'Create CBZ file instead of PDF.')
   .addOption(
     new Option(
       '--skip-animated-frame',

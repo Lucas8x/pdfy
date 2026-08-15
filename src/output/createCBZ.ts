@@ -1,17 +1,22 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Readable } from 'node:stream';
-import { ZipArchive } from 'archiver';
+import archiver, { type ArchiverOptions } from 'archiver';
 import type { CreateCbzMetadataArgs } from '../@types';
 import { createComicInfo } from '../utils/createComicInfo';
 
+archiver.registerFormat('zip-encrypted', require('archiver-zip-encrypted'));
+
 export function createCBZ(
   outputFilePath: string,
-  metadata?: CreateCbzMetadataArgs
+  metadata?: CreateCbzMetadataArgs,
+  password?: string
 ) {
-  const archive = new ZipArchive({
+  const archive = archiver.create(password ? 'zip-encrypted' : 'zip', {
     zlib: { level: 0 },
-  });
+    encryptionMethod: 'aes256', // aes256 | zip20
+    password,
+  } as ArchiverOptions);
 
   const writeStream = fs.createWriteStream(outputFilePath);
 

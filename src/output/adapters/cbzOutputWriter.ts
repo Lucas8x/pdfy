@@ -8,9 +8,10 @@ import { createCBZ } from '../createCBZ';
 export function createCbzOutputWriter(
   outputFilePath: string,
   padMax: number,
-  metadata?: CreateCbzMetadataArgs
+  metadata?: CreateCbzMetadataArgs,
+  password?: string
 ): OutputWriter {
-  const cbz = createCBZ(outputFilePath, metadata);
+  const cbz = createCBZ(outputFilePath, metadata, password);
 
   return {
     write(image: ProcessedFile) {

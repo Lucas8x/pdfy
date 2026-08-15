@@ -18,6 +18,6 @@ export function createOutputWriter({
   password,
 }: CreateOutputWriterArgs): OutputWriter {
   return enableCBZ
-    ? createCbzOutputWriter(outputFilePath, padMax, metadata)
+    ? createCbzOutputWriter(outputFilePath, padMax, metadata, password)
     : createPdfOutputWriter(outputFilePath, password);
 }

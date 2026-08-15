@@ -48,7 +48,7 @@ pdfy [OPTIONS]
                             (default: 1080)
 -s, --sort <newest|oldest>  Determines the order in which the images will be inserted into the PDF. 
                             (default: "newest")
---pw, --password <string>   Protect PDF file with password.
+--pw, --password <string>   Protect PDF/CBZ file with password.
 --cbz                       Create CBZ file instead of PDF.
 --skip-animated-frame       Do not insert first frame of animated images on PDF/CBZ.
                             (default: false)
@@ -88,7 +88,6 @@ Create CBZ file instead of PDF:
 ```bash
 pdfy --cbz
 ```
-*NOTE: --password doesn't work in CBZ format.
 
 To include animated images into CBZ:
 ```bash
