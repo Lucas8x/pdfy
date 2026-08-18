@@ -58,7 +58,7 @@ pdfy [OPTIONS]
                             drastically increase processing time. 
                             Only CBZ support animated images. 
                             (default: false)
--V, --version               Print the cli version number.
+-v, --version               Print the cli version number.
 --help                      Display this help message.
 ```
 

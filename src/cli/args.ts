@@ -17,7 +17,7 @@ import { validatePassword } from '../utils/passwordValidator';
 import { countExtensions } from './countExtensions';
 
 const program = new Command('pdfy')
-  .version(pkgJson.version)
+  .version(pkgJson.version, '-v, --version')
   .option(
     '-i, --input <path>',
     'Input directory that will be converted',
