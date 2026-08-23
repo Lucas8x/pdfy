@@ -1,11 +1,12 @@
 import { Readable } from 'node:stream';
 import type { File, ProcessedFile } from '../@types';
-import { concurrency } from '../cli/args';
+import type { ImageProcessor } from '../image/imageProcessor';
 import ProgressBar from '../utils/lib/node-progress';
-import { convertImage } from './convertImage';
 
 export async function* processImages(
-  files: File[]
+  files: File[],
+  imageProcessor: ImageProcessor,
+  concurrency = 1
 ): AsyncGenerator<ProcessedFile> {
   const bar = new ProgressBar(
     '🔄 Processing images [:current/:total] [:bar] :percent% | :rate imgs/s | ETA :veta',
@@ -19,7 +20,7 @@ export async function* processImages(
 
   const source = Readable.from(files.entries()).map(
     async ([index, file]: [number, File]) => {
-      const [error, result] = await convertImage(file);
+      const [error, result] = await imageProcessor.run(file);
 
       bar.tick();
 
@@ -46,7 +47,7 @@ export async function* processImages(
 
   for await (const result of source) {
     if (!result) {
-      errorCount = +1;
+      errorCount += 1;
       continue;
     }
     yield result;

@@ -1,25 +1,57 @@
 #!/usr/bin/env node
 import { processFolder } from './app/processFolder';
-import { enableCBZ, inputPath, password as pwArg } from './cli/args';
 import { askPassword } from './cli/askPasswor';
+import { countExtensions } from './cli/countExtensions';
+import { parseArgs } from './cli/parser';
 import { selectFolder } from './cli/selectFolder';
+import { ImageProcessor } from './image/imageProcessor';
 
 async function main() {
+  const config = parseArgs();
+
+  if (config.list) {
+    await countExtensions(config.input ?? process.cwd());
+    return;
+  }
+
   const selectedFolders =
-    inputPath === null ? await selectFolder() : [inputPath];
+    config.input === null ? await selectFolder() : [config.input];
 
   if (selectedFolders.length === 0) {
     console.warn('No folder selected.');
     return;
   }
 
-  let userPassword = pwArg;
-  if (!(pwArg || enableCBZ)) {
+  let userPassword = config.password;
+  if (!(config.password || config.cbz)) {
     userPassword = await askPassword();
   }
+  config.password = userPassword;
+
+  const imageProcessor = new ImageProcessor({
+    quality: config.quality,
+    maxHeight: config.height,
+    maxWidth: config.width,
+    skipAnimatedFrame: config.skipAnimatedFrame,
+    copyAnimated: config.copyAnimated,
+    cbzAnimationSupport:
+      config.cbz &&
+      !config.skipAnimatedFrame &&
+      (config.copyAnimated || config.compressAnimated),
+  });
 
   for (const folderPath of selectedFolders) {
-    await processFolder(folderPath, userPassword);
+    await processFolder(
+      folderPath,
+      config.output,
+      {
+        password: userPassword,
+        enableCBZ: config.cbz,
+        sort: config.sort,
+        concurrency: config.concurrency,
+      },
+      imageProcessor
+    );
   }
 }
 
