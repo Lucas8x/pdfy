@@ -44,8 +44,43 @@ export function createCBZ(
   }
 
   return {
-    append(stream: Buffer | Readable, name: string) {
-      archive.append(stream, { name });
+    append(stream: Buffer | Readable, name: string): Promise<void> {
+      if (Buffer.isBuffer(stream)) {
+        archive.append(stream, { name });
+        return Promise.resolve();
+      }
+
+      return new Promise<void>((resolve, reject) => {
+        const rs = stream;
+        const onEnd = () => {
+          cleanup();
+          resolve();
+        };
+        const onClose = () => {
+          cleanup();
+          resolve();
+        };
+        const onError = (err: Error) => {
+          cleanup();
+          reject(err);
+        };
+        function cleanup() {
+          rs.removeListener('end', onEnd);
+          rs.removeListener('close', onClose);
+          rs.removeListener('error', onError);
+        }
+
+        try {
+          archive.append(rs, { name });
+        } catch (err) {
+          cleanup();
+          return reject(err as Error);
+        }
+
+        rs.on('end', onEnd);
+        rs.on('close', onClose);
+        rs.on('error', onError);
+      });
     },
     copy(filePath: string, name: string) {
       archive.file(filePath, { name });

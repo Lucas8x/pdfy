@@ -14,7 +14,7 @@ export function createCbzOutputWriter(
   const cbz = createCBZ(outputFilePath, metadata, password);
 
   return {
-    write(image: ProcessedFile) {
+    async write(image: ProcessedFile) {
       const filename = String(image.index + 1)
         .padStart(padMax, '0')
         .concat(
@@ -25,6 +25,11 @@ export function createCbzOutputWriter(
 
       if (image.type === 'copy') {
         cbz.copy(image.path, filename);
+        return;
+      }
+
+      if (image.type === 'stream') {
+        await cbz.append(image.stream, filename);
         return;
       }
 

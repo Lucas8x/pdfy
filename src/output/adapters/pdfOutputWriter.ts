@@ -8,8 +8,14 @@ export function createPdfOutputWriter(
   const pdf = createPDF(outputFilePath, userPassword);
 
   return {
-    write(image: ProcessedFile) {
+    async write(image: ProcessedFile) {
       if (image.type === 'copy') {
+        throw new Error(
+          'Animated image streams and copy assets are not supported for PDF output.'
+        );
+      }
+
+      if (image.type !== 'buffer') {
         throw new Error(
           'Animated image streams and copy assets are not supported for PDF output.'
         );

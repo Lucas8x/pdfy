@@ -4,6 +4,7 @@ import { askPassword } from './cli/askPasswor';
 import { countExtensions } from './cli/countExtensions';
 import { parseArgs } from './cli/parser';
 import { selectFolder } from './cli/selectFolder';
+import { FfmpegProcessor } from './image/ffmpegProcessor';
 import { ImageProcessor } from './image/imageProcessor';
 
 async function main() {
@@ -28,16 +29,28 @@ async function main() {
   }
   config.password = userPassword;
 
+  const cbzAnimationSupport =
+    config.cbz &&
+    !config.skipAnimatedFrame &&
+    (config.copyAnimated || config.compressAnimated);
+
+  const ffmpegProcessor = new FfmpegProcessor({
+    quality: config.quality,
+    maxHeight: config.height,
+    maxWidth: config.width,
+  });
+
+  await ffmpegProcessor.checkFfmpegAvailability();
+  ffmpegProcessor.printStatusMessage(cbzAnimationSupport, config.copyAnimated);
+
   const imageProcessor = new ImageProcessor({
     quality: config.quality,
     maxHeight: config.height,
     maxWidth: config.width,
     skipAnimatedFrame: config.skipAnimatedFrame,
     copyAnimated: config.copyAnimated,
-    cbzAnimationSupport:
-      config.cbz &&
-      !config.skipAnimatedFrame &&
-      (config.copyAnimated || config.compressAnimated),
+    cbzAnimationSupport,
+    ffmpegProcessor,
   });
 
   for (const folderPath of selectedFolders) {

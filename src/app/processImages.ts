@@ -1,13 +1,16 @@
 import { Readable } from 'node:stream';
-import type { File, ProcessedFile } from '../@types';
+import type { File, OutputWriter } from '../@types';
 import type { ImageProcessor } from '../image/imageProcessor';
 import ProgressBar from '../utils/lib/node-progress';
+import { waitStreamEnd } from '../utils/waitStreamEnd';
 
-export async function* processImages(
+export async function processImages(
   files: File[],
+  outputWrite: OutputWriter['write'],
   imageProcessor: ImageProcessor,
-  concurrency = 1
-): AsyncGenerator<ProcessedFile> {
+  concurrency = 1,
+  enableCBZ = false
+): Promise<void> {
   const bar = new ProgressBar(
     '🔄 Processing images [:current/:total] [:bar] :percent% | :rate imgs/s | ETA :veta',
     {
@@ -22,13 +25,30 @@ export async function* processImages(
     async ([index, file]: [number, File]) => {
       const [error, result] = await imageProcessor.run(file);
 
-      bar.tick();
-
       if (!result) {
+        errorCount += 1;
         if (error) {
           bar.interrupt(error);
         }
         return false;
+      }
+
+      if (result.type === 'stream' && enableCBZ) {
+        try {
+          outputWrite({
+            index,
+            path: file.path,
+            ...result,
+          });
+
+          await waitStreamEnd(result.stream);
+          bar.tick();
+
+          return false;
+        } catch (err) {
+          bar.interrupt(err instanceof Error ? err.message : String(err));
+          return false;
+        }
       }
 
       return {
@@ -47,10 +67,15 @@ export async function* processImages(
 
   for await (const result of source) {
     if (!result) {
-      errorCount += 1;
       continue;
     }
-    yield result;
+
+    await outputWrite(result);
+    bar.tick();
+
+    if ('buffer' in result) {
+      result.buffer = null;
+    }
   }
 
   console.log('');

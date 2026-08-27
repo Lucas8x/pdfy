@@ -60,10 +60,13 @@ export async function processFolder(
     password,
   });
 
-  for await (const file of processImages(files, imageProcessor, concurrency)) {
-    outputWriter.write(file);
-    file.buffer = null;
-  }
+  await processImages(
+    files,
+    outputWriter.write,
+    imageProcessor,
+    concurrency,
+    enableCBZ
+  );
 
   await outputWriter.finalize();
 

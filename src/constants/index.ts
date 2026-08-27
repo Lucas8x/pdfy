@@ -15,6 +15,8 @@ export const NUM_CPUS = os.cpus().length;
 
 export const DEFAULT_CONCURRENCY = Math.max(1, Math.floor(NUM_CPUS / 2));
 
+export const MAX_ANIMATION_FPS = 29.7;
+
 export const STATIC_IMAGE_EXTENSIONS = new Set([
   '.avif',
   '.bmp',

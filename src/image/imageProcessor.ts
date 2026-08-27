@@ -3,6 +3,7 @@ import type { Sharp } from 'sharp';
 import type { File, ImageCompressed } from '../@types';
 import { COMPRESSION_THRESHOLD } from '../constants';
 import { makeClickablePath } from '../utils';
+import type { FfmpegProcessor } from './ffmpegProcessor';
 import { getSharpInstance } from './getSharpInstance';
 
 export type ImageProcessorArgs = {
@@ -12,6 +13,7 @@ export type ImageProcessorArgs = {
   skipAnimatedFrame: boolean;
   copyAnimated: boolean;
   cbzAnimationSupport: boolean;
+  ffmpegProcessor: FfmpegProcessor;
 };
 
 export class ImageProcessor {
@@ -21,6 +23,7 @@ export class ImageProcessor {
   private readonly skipAnimatedFrame: boolean;
   private readonly copyAnimated: boolean;
   private readonly cbzAnimationSupport: boolean;
+  private readonly ffmpegProcessor: FfmpegProcessor;
 
   constructor(args: ImageProcessorArgs) {
     this.quality = args.quality;
@@ -29,6 +32,7 @@ export class ImageProcessor {
     this.skipAnimatedFrame = args.skipAnimatedFrame;
     this.copyAnimated = args.copyAnimated;
     this.cbzAnimationSupport = args.cbzAnimationSupport;
+    this.ffmpegProcessor = args.ffmpegProcessor;
   }
 
   private async compressImage(args: {
@@ -97,17 +101,26 @@ export class ImageProcessor {
         return [null, null];
       }
 
-      if (this.cbzAnimationSupport && isAnimated && this.copyAnimated) {
-        return [
-          null,
-          {
-            type: 'copy',
-            buffer: null,
-            width,
-            height,
-            extension: path.extname(file.path),
-          },
-        ];
+      if (this.cbzAnimationSupport && isAnimated) {
+        if (this.copyAnimated) {
+          return [
+            null,
+            {
+              type: 'copy',
+              buffer: null,
+              width,
+              height,
+              extension: path.extname(file.path),
+            },
+          ];
+        }
+
+        if (this.ffmpegProcessor.getIsAvailable()) {
+          const streamCompression = await this.ffmpegProcessor.run(file);
+          if (streamCompression) {
+            return [null, streamCompression];
+          }
+        }
       }
 
       const extension =

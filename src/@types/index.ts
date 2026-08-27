@@ -1,3 +1,5 @@
+import type { Readable } from 'node:stream';
+
 export type ImageCompressed =
   | {
       type: 'buffer';
@@ -9,6 +11,13 @@ export type ImageCompressed =
   | {
       type: 'copy';
       buffer: null;
+      width: number;
+      height: number;
+      extension: string;
+    }
+  | {
+      type: 'stream';
+      stream: Readable;
       width: number;
       height: number;
       extension: string;
@@ -41,6 +50,6 @@ export type File = {
 };
 
 export type OutputWriter = {
-  write: (image: ProcessedFile) => void;
+  write: (image: ProcessedFile) => Promise<void>;
   finalize: () => Promise<void>;
 };
