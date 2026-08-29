@@ -50,6 +50,6 @@ export type File = {
 };
 
 export type OutputWriter = {
-  write: (image: ProcessedFile) => Promise<void>;
-  finalize: () => Promise<void>;
+  write: (image: ProcessedFile) => void | Promise<void>;
+  finalize: () => void | Promise<void>;
 };
