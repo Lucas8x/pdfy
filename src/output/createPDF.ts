@@ -20,23 +20,19 @@ export function createPDF(outputFilePath: string, userPassword?: string) {
 
   doc.pipe(writeStream);
 
-  function addImage(buffer: Buffer, width: number, height: number) {
-    const { pageWidth, pageHeight } = getAdjustedSizes(width, height);
-
-    doc.addPage({
-      size: [pageWidth, pageHeight],
-      margin: 0,
-    });
-
-    doc.image(buffer, 0, 0, {
-      width: pageWidth,
-      height: pageHeight,
-    });
-  }
-
   return {
     append(buffer: Buffer, width: number, height: number) {
-      addImage(buffer, width, height);
+      const { pageWidth, pageHeight } = getAdjustedSizes(width, height);
+
+      doc.addPage({
+        size: [pageWidth, pageHeight],
+        margin: 0,
+      });
+
+      doc.image(buffer, 0, 0, {
+        width: pageWidth,
+        height: pageHeight,
+      });
     },
     async finalize(): Promise<void> {
       doc.end();
