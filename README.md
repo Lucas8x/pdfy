@@ -73,7 +73,7 @@ Defines the maximum image resolution:
 pdfy -w 1280 -h 720
 ```
 
-The PDF starts with the oldest images:
+The output starts with the oldest images:
 ```bash
 pdfy -s oldest
 ```
@@ -89,9 +89,17 @@ Create CBZ file instead of PDF:
 pdfy --cbz
 ```
 
-To include animated images into CBZ:
+To include animated images into CBZ:<br>
+¹ fastest method, but it wont reduce the size of animated files.
 ```bash
 pdfy --cbz --copy-animated
+```
+
+If you have many gifs and really want to reduce the output size:<br>
+¹ will drastically increase processing time.<br>
+² highly recommended to install [ffmpeg](https://www.ffmpeg.org) before using it.
+```bash
+pdfy --cbz --compress-animated
 ```
 
 A complete example:
@@ -102,10 +110,11 @@ pdfy -i C:\images -c 8 -q 50 -w 1280 -h 720 -s oldest -o F:\images\pdfs --passwo
 
 ## Built with
 
-- sharp - Image manipulation/processing
+- sharp - Image manipulation/compression
 - bmp-js - Bmp format suport
 - pdfkit - PDF manipulation
 - archiver - CBZ manipulation
+- ffmpeg - Animated images compression
 
 ## Development 
 
