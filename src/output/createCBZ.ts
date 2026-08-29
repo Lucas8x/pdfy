@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Readable } from 'node:stream';
+import { finished } from 'node:stream/promises';
 import archiver, { type ArchiverOptions } from 'archiver';
 import type { CreateCbzMetadataArgs } from '../@types';
 import { createComicInfo } from '../utils/createComicInfo';
@@ -87,6 +88,7 @@ export function createCBZ(
     },
     async finalize() {
       await archive.finalize();
+      await finished(writeStream);
     },
   };
 }
