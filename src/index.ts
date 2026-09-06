@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { processFolder } from './app/processFolder';
-import { askPassword } from './cli/askPasswor';
+import { askPassword } from './cli/askPassword';
 import { countExtensions } from './cli/countExtensions';
 import { parseArgs } from './cli/parser';
 import { selectFolder } from './cli/selectFolder';
