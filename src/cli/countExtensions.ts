@@ -7,7 +7,7 @@ export async function countExtensions(inputFolder: string) {
 
     if (extensionCounts.size === 0) {
       console.log(
-        `⚠️ No supported image files found in ${makeClickablePath(inputFolder).ansi} folder. `
+        `⚠️ No supported image files found in ${makeClickablePath(inputFolder).ansi} folder.`
       );
       return;
     }
