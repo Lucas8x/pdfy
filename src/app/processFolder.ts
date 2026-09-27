@@ -7,6 +7,7 @@ import {
 import type { ImageProcessor } from '../image/imageProcessor';
 import { createOutputWriter } from '../output/outputWriter';
 import { makeClickablePath } from '../utils';
+import { formatDuration } from '../utils/formatDuration';
 import { getOriginFolderStats } from '../utils/getOriginFolderStats';
 import { printOutputDetails } from '../utils/printOutputDetails';
 import { readFolder } from '../utils/readFolder';
@@ -41,6 +42,8 @@ export async function processFolder(
     return;
   }
 
+  const startTime = performance.now();
+
   const outputFilename = path
     .basename(inputFolderPath)
     .concat(enableCBZ ? '.cbz' : '.pdf');
@@ -69,6 +72,9 @@ export async function processFolder(
   );
 
   await outputWriter.finalize();
+
+  const endTime = performance.now();
+  console.log(`⌛ Finished in: ${formatDuration(endTime - startTime)}\n`);
 
   await printOutputDetails(
     outputFilePath,

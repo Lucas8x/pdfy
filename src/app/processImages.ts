@@ -83,6 +83,6 @@ export async function processImages(
     console.log(`⛔ Error on: ${errorCount} of ${files.length} files.`);
   }
   console.log(
-    `✅ Processed: ${files.length - errorCount} of ${files.length} files.\n`
+    `✅ Processed: ${files.length - errorCount} of ${files.length} files.`
   );
 }
