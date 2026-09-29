@@ -151,7 +151,7 @@ export class ImageProcessor {
       const err = error instanceof Error ? error.message : 'UNKNOWN_ERROR';
 
       return [
-        `\n❌ Error processing ${makeClickablePath(file.path).ansi}: ${err}`,
+        `❌ Error processing: ${makeClickablePath(file.path).ansi} - ${err}`,
         null,
       ];
     }
