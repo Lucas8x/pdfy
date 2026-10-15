@@ -24,7 +24,7 @@ async function main() {
   }
 
   let userPassword = config.password;
-  if (!(config.password || config.cbz)) {
+  if (!(config.password || config.skipPassword)) {
     userPassword = await askPassword();
   }
   config.password = userPassword;

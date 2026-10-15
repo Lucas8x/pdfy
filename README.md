@@ -49,6 +49,7 @@ pdfy [OPTIONS]
 -s, --sort <newest|oldest>  Determines the order in which the images will be inserted into the PDF. 
                             (default: "newest")
 --pw, --password <string>   Protect PDF/CBZ file with password.
+--skip-pw, --skip-password  Skip password prompt when not provided.
 --cbz                       Create CBZ file instead of PDF.
 --skip-animated-frame       Do not insert first frame of animated images on PDF/CBZ.
                             (default: false)

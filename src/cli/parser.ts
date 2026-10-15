@@ -167,7 +167,12 @@ export function parseArgs(argv?: string[]) {
         return value;
       }
     )
-    .option('--cbz', 'Create CBZ file instead of PDF.')
+    .addOption(
+      new Option('--skip-pw, --skip-password', 'Skip password prompt')
+        .default(false)
+        .conflicts('password')
+    )
+    .option('--cbz', 'Create CBZ file instead of PDF.', false)
     .addOption(
       new Option(
         '--skip-animated-frame',
@@ -210,6 +215,7 @@ export function parseArgs(argv?: string[]) {
     copyAnimated: boolean;
     compressAnimated: boolean;
     list: boolean;
+    skipPassword: boolean;
   }>();
 
   if (!config.cbz && config.copyAnimated) {
