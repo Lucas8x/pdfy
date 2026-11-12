@@ -25,26 +25,26 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
-    "@huh-david/bmp-js": "^0.8.7",
+    "@huh-david/bmp-js": "^0.8.8",
     "archiver": "7",
     "archiver-zip-encrypted": "^2.0.0",
-    "commander": "^15.0.0",
-    "filesize": "^11.0.23",
+    "commander": "^15.1.0",
+    "filesize": "^11.0.31",
     "fluent-ffmpeg": "^2.1.3",
     "pdfkit": "^0.19.1",
     "prompts": "^2.4.2",
-    "sharp": "^0.35.4"
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.13",
+    "@biomejs/biome": "2.6.7",
     "@types/archiver": "7",
-    "@types/bun": "^1.4.2",
-    "@types/node": "^22.20.2",
-    "@types/pdfkit": "^0.17.6",
+    "@types/bun": "^1.4.4",
+    "@types/node": "^26.6.6",
+    "@types/pdfkit": "^0.17.7",
     "@types/prompts": "^2.4.9",
     "adm-zip": "^0.6.1",
-    "typescript": "^6.0.3",
-    "ultracite": "7.11.1"
+    "typescript": "^7.0.2",
+    "ultracite": "8.2.0"
   },
   "repository": {
     "type": "git",
